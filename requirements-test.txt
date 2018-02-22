@@ -1,0 +1,5 @@
+# EMG tests dependencies
+# install and create a virtual environment
+# run pip install -r requirements-test
+
+pytest

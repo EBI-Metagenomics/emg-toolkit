@@ -1,0 +1,7 @@
+# EMG toolkit dependencies
+# install and create a virtual environment
+# run pip install -r requirements
+
+requests
+xmltodict
+pandas
