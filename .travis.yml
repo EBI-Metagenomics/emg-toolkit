@@ -1,0 +1,21 @@
+language: python
+
+python:
+  - '3.4'
+  - '3.5'
+  - '3.6'
+
+before_install:
+  - python -V
+
+install:
+  - pip install "flake8==3.4" pycodestyle pep8-naming
+  - python setup.py sdist
+
+before_script:
+  - flake8 --version
+  - flake8 -v .
+
+script:
+  - pip install -U .
+  - python setup.py test
