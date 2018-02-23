@@ -53,7 +53,7 @@ setup(
     test_suite="tests",
     entry_points={
         'console_scripts': [
-            'emg-toolkit=emg_toolkit.__main__:main',
+            'emg-toolkit=emg_toolkit:main',
         ],
     },
 )
