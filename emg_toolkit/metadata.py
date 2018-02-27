@@ -35,6 +35,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_metadata(accession):
+    meta = dict()
     sample = requests.get(metadata_url().format(**{'accession': accession}))
     x = json.loads(json.dumps(xmltodict.parse(sample.content)))
     for m in x['ROOT']['SAMPLE']['SAMPLE_ATTRIBUTES']['SAMPLE_ATTRIBUTE']:
@@ -46,7 +47,8 @@ def get_metadata(accession):
             value = m['VALUE']
         except KeyError:
             value = None
-        return key, value
+        meta[key] = value
+    return meta
 
 
 def original_metadata(args):
@@ -61,19 +63,22 @@ def original_metadata(args):
             logger.error("%r is not valid." % accession)
             continue
 
-        sample_accession = [r['secondary_sample_accession'] for r in resp]
+        _accessions = {
+            r['run_accession']:
+            r['secondary_sample_accession'] for r in resp
+        }
 
         meta_csv = dict()
-        for s in sample_accession:
-            key, value = get_metadata(s)
-            try:
-                meta_csv[s][key] = value
-            except KeyError:
-                meta_csv[s] = {key: value}
+        _sample = None
+        _meta = None
+        for (run, sample) in _accessions.items():
+            if sample != _sample:
+                _meta = get_metadata(sample)
+            meta_csv[run] = _meta
+            meta_csv[run]['Sample'] = sample
+            _sample = sample
 
         df = DataFrame(meta_csv).T
-        if args.export:
-            fname = "{}_{}".format(accession, args.export)
-            df.to_csv(fname)
-        else:
-            logger.info(df)
+        df.index.name = 'Run'
+        fname = "{}.csv".format(accession)
+        df.to_csv(fname)

@@ -3,3 +3,5 @@
 # run pip install -r requirements-test
 
 pytest
+requests
+requests-mock

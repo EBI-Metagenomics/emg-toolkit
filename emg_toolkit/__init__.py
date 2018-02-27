@@ -52,9 +52,6 @@ def main():
         '-a', '--accession', required=True, nargs='+',
         help='provide study accession, e.g. PRJEB1787 or ERP001736'
     )
-    parser.add_argument(
-        '-e', '--export', type=str, help='path to the output file'
-    )
 
     args = parser.parse_args()
 

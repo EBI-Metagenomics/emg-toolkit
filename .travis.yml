@@ -18,4 +18,5 @@ before_script:
 
 script:
   - pip install -U .
-  - python setup.py test
+  - emg-toolkit original_metadata -a SRP034967 -d
+  - if ! diff -q SRP034967.csv test/SRP034967.csv &>/dev/null; then >&2 echo "different" fi

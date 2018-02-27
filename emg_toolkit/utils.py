@@ -25,7 +25,8 @@ def sample_url():
         'result=read_run'
         '&query=study_accession%3D{accession}%20'
         'OR%20secondary_study_accession%3D{accession}'
-        '&fields=secondary_sample_accession&format=json'
+        '&fields=run_accession,secondary_sample_accession,sample_accession'
+        '&format=json'
     )
 
 
