@@ -6,6 +6,6 @@
 
 ### usage
 
-    emg-toolkit [-h] [-V] [-d] [-a ACCESSION [ACCESSION ...]] [-e EXPORT] tool
+    emg-toolkit [-h] [-V] [-d] [-a ACCESSION [ACCESSION ...]] {original_metadata}
 
-    emg-toolkit original_metadata -a ERP001736 -e output.tsv
+    emg-toolkit original_metadata -a ERP001736
