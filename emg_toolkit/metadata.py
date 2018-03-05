@@ -65,7 +65,11 @@ def original_metadata(args):
 
         _accessions = {
             r['run_accession']:
-            r['secondary_sample_accession'] for r in resp
+                {
+                    'sample_accession': r['secondary_sample_accession'],
+                    'read_depth': r['depth']
+                }
+            for r in resp
         }
 
         meta_csv = dict()
@@ -73,10 +77,11 @@ def original_metadata(args):
         _meta = None
         for (run, sample) in _accessions.items():
             if sample != _sample:
-                _meta = get_metadata(sample)
+                _meta = get_metadata(sample['sample_accession'])
             meta_csv[run] = _meta
-            meta_csv[run]['Sample'] = sample
-            _sample = sample
+            meta_csv[run]['Sample'] = sample['sample_accession']
+            meta_csv[run]['Read depth'] = sample['read_depth']
+            _sample = sample['sample_accession']
 
         df = DataFrame(meta_csv).T
         df.index.name = 'Run'
