@@ -35,7 +35,7 @@ if "test" in sys.argv:
 setup(
     name="emg_toolkit",
     packages=find_packages(exclude=['ez_setup']),
-    version="0.1.0",
+    version="0.1.1",
     install_requires=install_requirements,
     setup_requires=['pytest-runner'],
     tests_require=test_requirements,

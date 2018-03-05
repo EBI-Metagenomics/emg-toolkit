@@ -23,7 +23,7 @@ from .metadata import (  # noqa
     original_metadata
 )
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 __all__ = [
     'full_metadata',
 ]
