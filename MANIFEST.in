@@ -1,6 +1,6 @@
 include README.rst
 include LICENSE
 include requirements.txt
-recursive-include emg_toolkit *
+recursive-include mg_toolkit *
 recursive-exclude * __pycache__
 recursive-exclude * *.pyc

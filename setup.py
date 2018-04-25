@@ -33,7 +33,7 @@ if "test" in sys.argv:
         test_requirements = f.read().splitlines()
 
 setup(
-    name="emg_toolkit",
+    name="mg-toolkit",
     packages=find_packages(exclude=['ez_setup']),
     version="0.1.1",
     install_requires=install_requirements,
@@ -53,7 +53,7 @@ setup(
     test_suite="tests",
     entry_points={
         'console_scripts': [
-            'emg-toolkit=emg_toolkit:main',
+            'mg-toolkit=mg_toolkit:main',
         ],
     },
 )
