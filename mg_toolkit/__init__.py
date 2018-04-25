@@ -17,7 +17,7 @@
 import logging
 import argparse
 import textwrap
-import emg_toolkit
+import mg_toolkit
 
 from .metadata import (  # noqa
     original_metadata
@@ -33,8 +33,8 @@ def main():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description=textwrap.dedent('''\
-            EBI metagenomics toolkit
-            ------------------------''')
+            Metagenomics toolkit
+            --------------------''')
     )
     parser.add_argument(
         '-V', '--version', action='version', version=__version__,
@@ -62,7 +62,7 @@ def main():
 
     logging.basicConfig(format='%(levelname)s: %(message)s', level=log_level)
 
-    return getattr(emg_toolkit, args.tool)(args)
+    return getattr(mg_toolkit, args.tool)(args)
 
 
 if __name__ == '__main__':

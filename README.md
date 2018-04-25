@@ -1,13 +1,12 @@
 [![Build Status](https://travis-ci.org/EBI-Metagenomics/emg-toolkit.svg?branch=master)](https://travis-ci.org/EBI-Metagenomics/emg-toolkit)
 
-# emg-toolkit
+# Install emg-toolkit
 
-    pip install git+git://github.com/EBI-Metagenomics/emg-toolkit@master#egg=emg-toolkit
+    pip install mg-toolkit
 
-    emg-toolkit -h
+### Usage
 
-### usage
+    $ mg-toolkit -h
+    mg-toolkit [-h] [-V] [-d] [-a ACCESSION [ACCESSION ...]] {original_metadata}
 
-    emg-toolkit [-h] [-V] [-d] [-a ACCESSION [ACCESSION ...]] {original_metadata}
-
-    emg-toolkit original_metadata -a ERP001736
+    $ mg-toolkit original_metadata -a ERP001736

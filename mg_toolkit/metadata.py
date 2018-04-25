@@ -54,13 +54,13 @@ def get_metadata(accession):
 def original_metadata(args):
 
     for accession in args.accession:
-        logger.debug(accession)
+        logger.debug("Accession %s" % accession)
 
         resp = requests.get(sample_url().format(**{'accession': accession}))
         try:
             resp = resp.json()
         except JSONDecodeError:
-            logger.error("%r is not valid." % accession)
+            logger.error("%s is not valid." % accession)
             continue
 
         _accessions = {
