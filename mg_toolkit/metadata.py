@@ -34,34 +34,60 @@ from .utils import (
 logger = logging.getLogger(__name__)
 
 
-def get_metadata(accession):
-    meta = dict()
-    sample = requests.get(metadata_url().format(**{'accession': accession}))
-    x = json.loads(json.dumps(xmltodict.parse(sample.content)))
-    for m in x['ROOT']['SAMPLE']['SAMPLE_ATTRIBUTES']['SAMPLE_ATTRIBUTE']:
-        try:
-            key = m['TAG']
-        except KeyError:
-            continue
-        try:
-            value = m['VALUE']
-        except KeyError:
-            value = None
-        meta[key] = value
-    return meta
-
-
 def original_metadata(args):
+
+    """
+    Process given accessions
+    """
 
     for accession in args.accession:
         logger.debug("Accession %s" % accession)
+        om = OriginalMetadata(accession)
+        om.save_to_csv(om.fetch_metadata())
 
-        resp = requests.get(sample_url().format(**{'accession': accession}))
+
+class OriginalMetadata(object):
+
+    """
+    Helper tool allowing to download original metadata for the given accession.
+    """
+
+    accession = None
+
+    def __init__(self, accession, *args, **kwargs):
+        self.accession = accession
+
+    def get_metadata(self, sample_accession):
+
+        """
+        Process XML.
+        """
+
+        meta = dict()
+        sample = requests.get(
+            metadata_url().format(**{'accession': sample_accession})
+        )
+        x = json.loads(json.dumps(xmltodict.parse(sample.content)))
+        for m in x['ROOT']['SAMPLE']['SAMPLE_ATTRIBUTES']['SAMPLE_ATTRIBUTE']:
+            try:
+                key = m['TAG']
+            except KeyError:
+                continue
+            try:
+                value = m['VALUE']
+            except KeyError:
+                value = None
+            meta[key] = value
+        return meta
+
+    def fetch_metadata(self):
+        resp = requests.get(
+            sample_url().format(**{'accession': self.accession})
+        )
         try:
             resp = resp.json()
         except JSONDecodeError:
-            logger.error("%s is not valid." % accession)
-            continue
+            return
 
         _accessions = {
             r['run_accession']:
@@ -77,13 +103,16 @@ def original_metadata(args):
         _meta = None
         for (run, sample) in _accessions.items():
             if sample != _sample:
-                _meta = get_metadata(sample['sample_accession'])
+                _meta = self.get_metadata(sample['sample_accession'])
             meta_csv[run] = _meta
             meta_csv[run]['Sample'] = sample['sample_accession']
             meta_csv[run]['Read depth'] = sample['read_depth']
             _sample = sample['sample_accession']
+        return meta_csv
 
+    def save_to_csv(self, meta_csv, filename=None):
         df = DataFrame(meta_csv).T
         df.index.name = 'Run'
-        fname = "{}.csv".format(accession)
-        df.to_csv(fname)
+        if filename is None:
+            filename = "{}.csv".format(self.accession)
+        df.to_csv(filename)
