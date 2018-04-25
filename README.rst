@@ -6,8 +6,13 @@
 
 
 
-Install emg-toolkit
-===================
+Metagenomics toolkit enables scientists to download all of the sample metadata for a given study to a single csv file.
+
+
+Install metagenomics toolkit
+============================
+
+::
 
     pip install mg-toolkit
 
