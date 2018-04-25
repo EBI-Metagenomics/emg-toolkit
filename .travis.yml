@@ -19,7 +19,7 @@ before_script:
 
 script:
   - pip install -U .
-  - emg-toolkit original_metadata -a SRP034967 -d
+  - mg-toolkit original_metadata -a SRP034967 -d
   - if ! diff -q SRP034967.csv tests/SRP034967.csv &>/dev/null; then exit 1; fi
 
 notifications:
