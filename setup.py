@@ -32,12 +32,16 @@ if "test" in sys.argv:
     with open(_requirements_test) as f:
         test_requirements = f.read().splitlines()
 
+
 setup(
     name="mg-toolkit",
     url='https://github.com/EBI-metagenomics/emg-toolkit',
     author='Ola Tarkowska',
     author_email='olat@ebi.ac.uk',
     description='Metagenomics toolkit',
+    long_description=open(
+        os.path.join(os.path.dirname(__file__), 'README.rst')
+    ).read(),
     packages=find_packages(exclude=['ez_setup']),
     version="0.1.2",
     install_requires=install_requirements,

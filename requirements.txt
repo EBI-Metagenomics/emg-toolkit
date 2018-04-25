@@ -1,4 +1,4 @@
-# EMG toolkit dependencies
+# MG toolkit dependencies
 # install and create a virtual environment
 # run pip install -r requirements
 
