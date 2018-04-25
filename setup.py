@@ -43,7 +43,7 @@ setup(
         os.path.join(os.path.dirname(__file__), 'README.rst')
     ).read(),
     packages=find_packages(exclude=['ez_setup']),
-    version="0.1.2",
+    version="0.1.3",
     install_requires=install_requirements,
     setup_requires=['pytest-runner'],
     tests_require=test_requirements,
