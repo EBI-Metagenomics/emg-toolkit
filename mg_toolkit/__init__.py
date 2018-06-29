@@ -26,6 +26,7 @@ from .search import sequence_search  # noqa
 __version__ = '0.1.4'
 __all__ = [
     'original_metadata',
+    'sequence_search',
 ]
 
 

@@ -5,3 +5,4 @@
 requests
 xmltodict
 pandas
+jsonapi-client
