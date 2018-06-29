@@ -14,19 +14,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import logging
 import argparse
 import textwrap
 import mg_toolkit
 
-from .metadata import (  # noqa
-    original_metadata
-)
+from .metadata import original_metadata  # noqa
+from .search import sequence_search  # noqa
 
 __version__ = '0.1.4'
 __all__ = [
     'original_metadata',
 ]
+
+
+def is_file(filename):
+    if not os.path.isfile(filename):
+        msg = "{0} is not a directory".format(filename)
+        raise argparse.ArgumentTypeError(msg)
+    else:
+        return filename
 
 
 def main():
@@ -44,13 +52,23 @@ def main():
         '-d', '--debug', action='store_true',
         help='print debugging information'
     )
-    parser.add_argument(
-        'tool', type=str, choices=['original_metadata', ],
-        help='name of the tool, e.g. original_metadata'
+
+    subparsers = parser.add_subparsers(dest='tool')
+
+    original_metadata_parser = subparsers.add_parser(
+        'original_metadata', help='Download original metadata'
     )
-    parser.add_argument(
+    original_metadata_parser.add_argument(
         '-a', '--accession', required=True, nargs='+',
         help='provide study accession, e.g. PRJEB1787 or ERP001736'
+    )
+
+    sequence_search_parser = subparsers.add_parser(
+        'sequence_search', help='Search sequence'
+    )
+    sequence_search_parser.add_argument(
+        '-s', '--sequence', required=True, type=is_file, nargs='+',
+        help='provide path to fasta file'
     )
 
     args = parser.parse_args()
@@ -58,7 +76,7 @@ def main():
     if args.debug:
         log_level = logging.DEBUG
     else:
-        log_level = logging.INFO
+        log_level = logging.WARN
 
     logging.basicConfig(format='%(levelname)s: %(message)s', level=log_level)
 
