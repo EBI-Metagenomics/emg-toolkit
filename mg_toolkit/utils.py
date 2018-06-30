@@ -18,9 +18,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
-API_BASE = 'https://www.ebi.ac.uk/metagenomics/api/latest/'
-
 SEQ_URL = 'https://www.ebi.ac.uk/metagenomics/sequence-search/search/phmmer'
 
 
@@ -38,3 +35,4 @@ def sample_url():
 
 def metadata_url():
     return 'https://www.ebi.ac.uk/ena/data/view/{accession}&display=xml'
+

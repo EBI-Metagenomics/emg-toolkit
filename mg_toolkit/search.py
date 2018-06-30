@@ -17,14 +17,12 @@
 import logging
 import requests
 import html
+from pandas import DataFrame
 from jsonapi_client import Session
 from jsonapi_client.exceptions import DocumentError
-from pandas import DataFrame
 
+from .utils import SEQ_URL
 
-from .utils import (
-    API_BASE, SEQ_URL
-)
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +37,7 @@ def sequence_search(args):
             sequence = f.read()
             logger.debug("Sequence %s" % sequence)
             seq = SequenceSearch(sequence)
-            seq.save_to_csv(seq.fetch_metadata())
+            seq.save_to_csv(seq.fetch_results())
 
 
 class SequenceSearch(object):
@@ -62,49 +60,68 @@ class SequenceSearch(object):
             'Accept': 'application/json',
             'Content-Type': 'application/x-www-form-urlencoded',
         }
-        return requests.post(SEQ_URL, data=data, headers=headers)
+        return requests.post(SEQ_URL, data=data, headers=headers).json()
 
-    def fetch_metadata(self):
-        csv_rows = {}
-        with Session(API_BASE) as s:
-            for h in self.analyse_sequence().json()['results']['hits']:
-                acc2 = h.get('acc2', None)
-                if acc2 is not None:
-                    for accession in acc2.split(","):
-                        accession = accession.strip("...")
-                        logger.debug("Accession %s" % accession)
-                        uuid = "{n} {a}".format(
-                            **{'n': h['name'], 'a': accession})
-                        csv_rows[uuid] = dict()
-                        csv_rows[uuid]['accessions'] = accession
-                        csv_rows[uuid]['kg'] = h.get('kg', '')
-                        csv_rows[uuid]['taxid'] = h.get('taxid', '')
-                        csv_rows[uuid]['name'] = h.get('name', '')
-                        csv_rows[uuid]['desc'] = h.get('desc', '')
-                        csv_rows[uuid]['pvalue'] = h.get('pvalue', '')
-                        csv_rows[uuid]['species'] = h.get('species', '')
-                        csv_rows[uuid]['score'] = h.get('score', '')
-                        csv_rows[uuid]['evalue'] = h.get('evalue', '')
-                        csv_rows[uuid]['nreported'] = h.get('nreported', '')
-                        csv_rows[uuid]['uniprot'] = ",".join(
-                            [i[0] for i in h.get('uniprot_link', [])])
+    def get_sample_metadata(self, accession):
+        if accession is None:
+            return None
+        headers = {
+            'Accept': 'application/vnd.api+json',
+        }
+        url = 'https://www.ebi.ac.uk/metagenomics/api/latest/samples/{accession}'
+        r = requests.get(
+            url.format(**{'accession': accession}),
+            headers=headers
+        )
 
-                        _meta = {}
-                        sample = None
-                        try:
-                            sample = s.get('samples', accession).resource
-                        except DocumentError:
-                            try:
-                                run = s.get('runs', accession).resource
-                                sample = run.sample
-                            except DocumentError:
-                                pass
+        if r.status_code != requests.codes.ok:
+            url = 'https://www.ebi.ac.uk/metagenomics/api/latest/runs/{accession}?include=sample'
+            r = requests.get(
+                url.format(**{'accession': accession}),
+                headers=headers
+            )
 
-                        if sample is not None:
-                            for m in sample.sample_metadata:
-                                unit = html.unescape(m['unit']) if m['unit'] else ""  # noqa
-                                _meta[m['key'].replace(" ", "_")] = "{value} {unit}".format(value=m['value'], unit=unit)  # noqa
-                        csv_rows[uuid].update(_meta)
+        r = r.json()
+        _meta = {}
+        try:
+            metadata = r['data']['attributes']['sample-metadata']
+        except KeyError:
+            try:
+                metadata = r['data']['include'][0]['attributes']['sample-metadata']
+            except KeyError:
+                return _meta
+        for m in metadata:
+            unit = html.unescape(m['unit']) if m['unit'] else ""  # noqa
+            _meta[m['key'].replace(" ", "_")] = "{value} {unit}".format(value=m['value'], unit=unit)  # noqa
+
+        return _meta
+
+    def fetch_results(self):
+        csv_rows = dict()
+        for h in self.analyse_sequence()['results']['hits']:
+            acc2 = h.get('acc2', None)
+            if acc2 is not None:
+                for accession in acc2.split(","):
+                    accession = accession.strip("...")
+                    logger.debug("Accession %s" % accession)
+                    uuid = "{n} {a}".format(
+                        **{'n': h['name'], 'a': accession})
+                    csv_rows[uuid] = dict()
+                    csv_rows[uuid]['accessions'] = accession
+                    csv_rows[uuid]['kg'] = h.get('kg', '')
+                    csv_rows[uuid]['taxid'] = h.get('taxid', '')
+                    csv_rows[uuid]['name'] = h.get('name', '')
+                    csv_rows[uuid]['desc'] = h.get('desc', '')
+                    csv_rows[uuid]['pvalue'] = h.get('pvalue', '')
+                    csv_rows[uuid]['species'] = h.get('species', '')
+                    csv_rows[uuid]['score'] = h.get('score', '')
+                    csv_rows[uuid]['evalue'] = h.get('evalue', '')
+                    csv_rows[uuid]['nreported'] = h.get('nreported', '')
+                    csv_rows[uuid]['uniprot'] = ",".join(
+                        [i[0] for i in h.get('uniprot_link', [])])
+
+                    _meta = self.get_sample_metadata(accession=accession)
+                    csv_rows[uuid].update(_meta)
         return csv_rows
 
     def save_to_csv(self, csv_rows, filename=None):
