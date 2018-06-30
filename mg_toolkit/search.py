@@ -18,10 +18,11 @@ import logging
 import requests
 import html
 from pandas import DataFrame
-from jsonapi_client import Session
-from jsonapi_client.exceptions import DocumentError
 
-from .utils import SEQ_URL
+from .utils import (
+    MG_SEQ_URL,
+    MG_SAMPLE_URL,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -60,7 +61,7 @@ class SequenceSearch(object):
             'Accept': 'application/json',
             'Content-Type': 'application/x-www-form-urlencoded',
         }
-        return requests.post(SEQ_URL, data=data, headers=headers).json()
+        return requests.post(MG_SEQ_URL, data=data, headers=headers).json()
 
     def get_sample_metadata(self, accession):
         if accession is None:
@@ -68,16 +69,14 @@ class SequenceSearch(object):
         headers = {
             'Accept': 'application/vnd.api+json',
         }
-        url = 'https://www.ebi.ac.uk/metagenomics/api/latest/samples/{accession}'
         r = requests.get(
-            url.format(**{'accession': accession}),
+            MG_SAMPLE_URL.format(**{'accession': accession}),
             headers=headers
         )
 
         if r.status_code != requests.codes.ok:
-            url = 'https://www.ebi.ac.uk/metagenomics/api/latest/runs/{accession}?include=sample'
             r = requests.get(
-                url.format(**{'accession': accession}),
+                MG_SAMPLE_URL.format(**{'accession': accession}),
                 headers=headers
             )
 
@@ -87,11 +86,12 @@ class SequenceSearch(object):
             metadata = r['data']['attributes']['sample-metadata']
         except KeyError:
             try:
-                metadata = r['data']['include'][0]['attributes']['sample-metadata']
+                metadata = \
+                    r['data']['include'][0]['attributes']['sample-metadata']
             except KeyError:
                 return _meta
         for m in metadata:
-            unit = html.unescape(m['unit']) if m['unit'] else ""  # noqa
+            unit = html.unescape(m['unit']) if m['unit'] else ""
             _meta[m['key'].replace(" ", "_")] = "{value} {unit}".format(value=m['value'], unit=unit)  # noqa
 
         return _meta
