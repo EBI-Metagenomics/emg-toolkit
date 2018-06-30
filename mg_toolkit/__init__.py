@@ -81,7 +81,8 @@ def main():
 
     logging.basicConfig(format='%(levelname)s: %(message)s', level=log_level)
 
-    return getattr(mg_toolkit, args.tool)(args)
+    if args.tool is not None:
+        return getattr(mg_toolkit, args.tool)(args)
 
 
 if __name__ == '__main__':
