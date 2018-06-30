@@ -23,9 +23,25 @@ Usage
 ::
 
     $ mg-toolkit -h
-    usage: mg-toolkit [-h] [-V] [-d] -a ACCESSION [ACCESSION ...]
-                      {original_metadata}
+    usage: mg-toolkit [-h] [-V] [-d] {original_metadata,sequence_search} ...
+
+    Metagenomics toolkit
+    --------------------
+
+    positional arguments:
+      {original_metadata,sequence_search}
+        original_metadata   Download original metadata
+        sequence_search     Search sequence
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      -V, --version         print version information
+      -d, --debug           print debugging information
 
 Example::
 
     $ mg-toolkit original_metadata -a ERP001736
+
+or
+
+    $ mg-toolkit sequence_search -s test.fasta
