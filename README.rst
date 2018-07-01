@@ -42,6 +42,6 @@ Example::
 
     $ mg-toolkit original_metadata -a ERP001736
 
-or
+or::
 
     $ mg-toolkit sequence_search -s test.fasta
