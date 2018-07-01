@@ -65,7 +65,8 @@ def main():
     )
 
     sequence_search_parser = subparsers.add_parser(
-        'sequence_search', help='Search sequence'
+        'sequence_search',
+        help='Search non-redundant protein database using HMMER'
     )
     sequence_search_parser.add_argument(
         '-s', '--sequence', required=True, type=is_file, nargs='+',

@@ -22,6 +22,7 @@ from pandas import DataFrame
 from .utils import (
     MG_SEQ_URL,
     MG_SAMPLE_URL,
+    MG_RUN_URL,
 )
 
 
@@ -76,7 +77,7 @@ class SequenceSearch(object):
 
         if r.status_code != requests.codes.ok:
             r = requests.get(
-                MG_SAMPLE_URL.format(**{'accession': accession}),
+                MG_RUN_URL.format(**{'accession': accession}),
                 headers=headers
             )
 
@@ -84,10 +85,12 @@ class SequenceSearch(object):
         _meta = {}
         try:
             metadata = r['data']['attributes']['sample-metadata']
+            logger.debug(metadata)
         except KeyError:
             try:
                 metadata = \
-                    r['data']['include'][0]['attributes']['sample-metadata']
+                    r['included'][0]['attributes']['sample-metadata']
+                logger.debug(metadata)
             except KeyError:
                 return _meta
         for m in metadata:
