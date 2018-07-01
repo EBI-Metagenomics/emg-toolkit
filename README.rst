@@ -6,7 +6,7 @@
 
 
 
-Metagenomics toolkit enables scientists to download all of the sample metadata for a given study to a single csv file.
+Metagenomics toolkit enables scientists to download all of the sample metadata for a given study or sequence to a single csv file.
 
 
 Install metagenomics toolkit
