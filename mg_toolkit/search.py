@@ -172,12 +172,7 @@ class SequenceSearch(object):
             except KeyError:
                 pass
         if _biome is not None:
-            _biome = _biome.split(":")
-            try:
-                _biome = _biome.pop(_biome.index("root"))
-            except ValueError:
-                pass
-            return _biome[:-1], ":".join(_biome)
+            return _biome.split(":")[-1], _biome
         raise ValueError("Biome doesn't exist.")
 
     def fetch_results(self):
