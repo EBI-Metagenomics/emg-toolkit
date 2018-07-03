@@ -45,7 +45,7 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     packages=find_packages(exclude=['ez_setup']),
-    version="0.2.6",
+    version="0.2.7",
     install_requires=install_requirements,
     setup_requires=['pytest-runner'],
     tests_require=test_requirements,
