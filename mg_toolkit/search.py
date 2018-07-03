@@ -34,19 +34,19 @@ def sequence_search(args):
     """
     Process given fasta file
     """
-    database = args.database
     for s in args.sequence:
         with open(s) as f:
             sequence = f.read()
             logger.debug("Sequence %s" % sequence)
-            seq = SequenceSearch(sequence, database=database)
+            seq = SequenceSearch(sequence, database=args.database)
             seq.save_to_csv(seq.fetch_results())
 
 
 class SequenceSearch(object):
 
     """
-    Helper tool allowing to download original metadata for the given accession.
+    Helper tool allowing to search non-redundant protein database using HMMER
+    and fetch environmental metadata.
     """
 
     sequence = None
@@ -54,13 +54,30 @@ class SequenceSearch(object):
 
     def __init__(self, sequence, *args, **kwargs):
         self.sequence = sequence
-        self.database = kwargs.get("database", "full")
+        self.database = kwargs.pop("database", "full")
+        self.seq_evalue_threshold = kwargs.pop(
+            "seq_evalue_threshold", None)
+        self.hit_evalue_threshold = kwargs.pop(
+            "hit_evalue_threshold", None)
+        self.seq_bitscore_threshold = kwargs.pop(
+            "seq_bitscore_threshold", None)
+        self.hit_bitscore_threshold = kwargs.pop(
+            "hit_bitscore_threshold", None)
 
     def analyse_sequence(self):
         data = {
             "seqdb": self.database,
             "seq": self.sequence,
         }
+        if self.seq_evalue_threshold is not None:
+            data["incE"] = self.seq_evalue_threshold
+        if self.hit_evalue_threshold is not None:
+            data["incdomE"] = self.hit_evalue_threshold
+        if self.seq_bitscore_threshold is not None:
+            data["incT"] = self.seq_bitscore_threshold
+        if self.hit_bitscore_threshold is not None:
+            data["incdomT"] = self.hit_bitscore_threshold
+
         headers = {
             'Accept': 'application/json',
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -68,7 +85,7 @@ class SequenceSearch(object):
         logger.debug(data)
         return requests.post(MG_SEQ_URL, data=data, headers=headers).json()
 
-    def get_sample_metadata(self, accession):
+    def make_request(self, accession):
         if accession is None:
             return None
         headers = {
@@ -78,14 +95,15 @@ class SequenceSearch(object):
             MG_SAMPLE_URL.format(**{'accession': accession}),
             headers=headers
         )
-
         if r.status_code != requests.codes.ok:
             r = requests.get(
                 MG_RUN_URL.format(**{'accession': accession}),
                 headers=headers
             )
+        return r.json()
 
-        r = r.json()
+    def get_sample_metadata(self, accession):
+        r = self.make_request(accession)
         _meta = {}
         try:
             metadata = r['data']['attributes']['sample-metadata']
@@ -100,7 +118,6 @@ class SequenceSearch(object):
         for m in metadata:
             unit = html.unescape(m['unit']) if m['unit'] else ""
             _meta[m['key'].replace(" ", "_")] = "{value} {unit}".format(value=m['value'], unit=unit)  # noqa
-
         return _meta
 
     def fetch_results(self):

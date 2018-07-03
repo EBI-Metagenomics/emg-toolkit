@@ -57,11 +57,11 @@ def main():
     subparsers = parser.add_subparsers(dest='tool')
 
     original_metadata_parser = subparsers.add_parser(
-        'original_metadata', help='Download original metadata'
+        'original_metadata', help='Download original metadata.'
     )
     original_metadata_parser.add_argument(
         '-a', '--accession', required=True, nargs='+',
-        help='provide study accession, e.g. PRJEB1787 or ERP001736'
+        help='Provide study accession, e.g. PRJEB1787 or ERP001736.'
     )
 
     sequence_search_parser = subparsers.add_parser(
@@ -69,13 +69,35 @@ def main():
         help='Search non-redundant protein database using HMMER'
     )
     sequence_search_parser.add_argument(
-        '-s', '--sequence', required=True, type=is_file, nargs='+',
-        help='provide path to fasta file'
+        '-seq', '--sequence', required=True, type=is_file, nargs='+',
+        help='Provide path to fasta file.'
     )
     sequence_search_parser.add_argument(
-        '-b', '--database', type=str, choices=['full', 'all', 'partial', ],
-        default='full', const='full', nargs='?',
-        help='choose peptide database (default: %(default)s)'
+        '-db', '--database', type=str, choices=['full', 'all', 'partial', ],
+        default='full',
+        help='Choose peptide database (default: %(default)s).'
+    )
+
+    sequence_search_parser.add_argument(
+        '-incE', '--seq_evalue_threshold', type=float, default=0.01,
+        help=('Sequence E-value threshold. Accepted value 0 < x ≤ 10 '
+              '(default: %(default)s).')
+    )
+    sequence_search_parser.add_argument(
+        '-incdomE', '--hit_evalue_threshold', type=float, default=0.03,
+        help=('Hit E-value threshold. Accepted value 10 < x ≤ 10 '
+              '(default: %(default)s).')
+    )
+
+    sequence_search_parser.add_argument(
+        '-incT', '--seq_bitscore_threshold', type=float, default=25,
+        help=('Sequence bit score threshold. Accepted values x > 0 '
+              '(default: %(default)s).')
+    )
+    sequence_search_parser.add_argument(
+        '-incdomT', '--hit_bitscore_threshold', type=float, default=23,
+        help=('Hit bit score threshold. Accepted values x > 0 '
+              '(default: %(default)s).')
     )
 
     args = parser.parse_args()
