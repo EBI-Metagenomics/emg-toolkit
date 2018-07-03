@@ -1,8 +1,4 @@
-[![Build Status](https://travis-ci.org/EBI-Metagenomics/emg-toolkit.svg?branch=master)](https://travis-ci.org/EBI-Metagenomics/emg-toolkit)
-
-[![PyPi package](https://badge.fury.io/py/mg-toolkit.svg)](https://badge.fury.io/py/mg-toolkit)
-
-[![Downloads](http://pepy.tech/badge/mg-toolkit)](http://pepy.tech/project/mg-toolkit)
+[![Build Status](https://travis-ci.org/EBI-Metagenomics/emg-toolkit.svg?branch=master)](https://travis-ci.org/EBI-Metagenomics/emg-toolkit) [![PyPi package](https://badge.fury.io/py/mg-toolkit.svg)](https://badge.fury.io/py/mg-toolkit) [![Downloads](http://pepy.tech/badge/mg-toolkit)](http://pepy.tech/project/mg-toolkit)
 
 
 Metagenomics toolkit enables scientists to download all of the sample
@@ -34,11 +30,16 @@ Usage
       -V, --version         print version information
       -d, --debug           print debugging information
 
-Example:
+
+Examples
+========
+
+Download metadata::
 
     $ mg-toolkit original_metadata -a ERP001736
 
-or:
+
+Search non-redundant protein database using HMMER and fetch metadata
 
     $ mg-toolkit sequence_search -s test.fasta -b partial
 
