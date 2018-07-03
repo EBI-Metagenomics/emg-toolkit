@@ -23,7 +23,7 @@ import mg_toolkit
 from .metadata import original_metadata  # noqa
 from .search import sequence_search  # noqa
 
-__version__ = '0.2.2'
+__version__ = '0.2.3'
 __all__ = [
     'original_metadata',
     'sequence_search',
@@ -71,6 +71,11 @@ def main():
     sequence_search_parser.add_argument(
         '-s', '--sequence', required=True, type=is_file, nargs='+',
         help='provide path to fasta file'
+    )
+    sequence_search_parser.add_argument(
+        '-b', '--database', type=str, choices=['full', 'all', 'partial', ],
+        default='full', const='full', nargs='?',
+        help='choose peptide database (default: %(default)s)'
     )
 
     args = parser.parse_args()

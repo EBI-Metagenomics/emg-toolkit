@@ -34,11 +34,12 @@ def sequence_search(args):
     """
     Process given fasta file
     """
+    database = args.database
     for s in args.sequence:
         with open(s) as f:
             sequence = f.read()
             logger.debug("Sequence %s" % sequence)
-            seq = SequenceSearch(sequence)
+            seq = SequenceSearch(sequence, database=database)
             seq.save_to_csv(seq.fetch_results())
 
 
@@ -49,19 +50,22 @@ class SequenceSearch(object):
     """
 
     sequence = None
+    database = "full"
 
     def __init__(self, sequence, *args, **kwargs):
         self.sequence = sequence
+        self.database = kwargs.get("database", "full")
 
     def analyse_sequence(self):
         data = {
-            "seqdb": "full",
+            "seqdb": self.database,
             "seq": self.sequence,
         }
         headers = {
             'Accept': 'application/json',
             'Content-Type': 'application/x-www-form-urlencoded',
         }
+        logger.debug(data)
         return requests.post(MG_SEQ_URL, data=data, headers=headers).json()
 
     def get_sample_metadata(self, accession):
