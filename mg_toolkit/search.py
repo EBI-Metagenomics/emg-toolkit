@@ -34,11 +34,31 @@ def sequence_search(args):
     """
     Process given fasta file
     """
-    for s in args.sequence:
+    args = vars(args)
+    for s in args.pop("sequence"):
         with open(s) as f:
             sequence = f.read()
             logger.debug("Sequence %s" % sequence)
-            seq = SequenceSearch(sequence, database=args.database)
+            seq = SequenceSearch(
+                sequence,
+                database=args.pop("database", "full"),
+                seq_evalue_threshold=args.pop(
+                    "seq_evalue_threshold", None),
+                hit_evalue_threshold=args.pop(
+                    "hit_evalue_threshold", None),
+                report_seq_evalue_threshold=args.pop(
+                    "report_seq_evalue_threshold", None),
+                report_hit_evalue_threshold=args.pop(
+                    "report_hit_evalue_threshold", None),
+                seq_bitscore_threshold=args.pop(
+                    "seq_bitscore_threshold", None),
+                hit_bitscore_threshold=args.pop(
+                    "hit_bitscore_threshold", None),
+                report_seq_bitscore_threshold=args.pop(
+                    "report_seq_bitscore_threshold", None),
+                report_hit_bitscore_threshold=args.pop(
+                    "report_hit_bitscore_threshold", None),
+            )
             seq.save_to_csv(seq.fetch_results())
 
 
@@ -52,17 +72,25 @@ class SequenceSearch(object):
     sequence = None
     database = "full"
 
-    def __init__(self, sequence, *args, **kwargs):
+    def __init__(self, sequence, database="full", *args, **kwargs):
         self.sequence = sequence
-        self.database = kwargs.pop("database", "full")
+        self.database = database
         self.seq_evalue_threshold = kwargs.pop(
             "seq_evalue_threshold", None)
         self.hit_evalue_threshold = kwargs.pop(
             "hit_evalue_threshold", None)
+        self.report_seq_evalue_threshold = kwargs.pop(
+            "report_seq_evalue_threshold", None)
+        self.report_hit_evalue_threshold = kwargs.pop(
+            "report_hit_evalue_threshold", None)
         self.seq_bitscore_threshold = kwargs.pop(
             "seq_bitscore_threshold", None)
         self.hit_bitscore_threshold = kwargs.pop(
             "hit_bitscore_threshold", None)
+        self.report_seq_bitscore_threshold = kwargs.pop(
+            "report_seq_bitscore_threshold", None)
+        self.report_hit_bitscore_threshold = kwargs.pop(
+            "report_hit_bitscore_threshold", None)
 
     def analyse_sequence(self):
         data = {
@@ -73,10 +101,18 @@ class SequenceSearch(object):
             data["incE"] = self.seq_evalue_threshold
         if self.hit_evalue_threshold is not None:
             data["incdomE"] = self.hit_evalue_threshold
+        if self.report_seq_evalue_threshold is not None:
+            data["E"] = self.report_seq_evalue_threshold
+        if self.report_hit_evalue_threshold is not None:
+            data["domE"] = self.report_hit_evalue_threshold
         if self.seq_bitscore_threshold is not None:
             data["incT"] = self.seq_bitscore_threshold
         if self.hit_bitscore_threshold is not None:
             data["incdomT"] = self.hit_bitscore_threshold
+        if self.report_seq_bitscore_threshold is not None:
+            data["incT"] = self.report_seq_bitscore_threshold
+        if self.report_hit_bitscore_threshold is not None:
+            data["incdomT"] = self.report_hit_bitscore_threshold
 
         headers = {
             'Accept': 'application/json',
@@ -102,23 +138,47 @@ class SequenceSearch(object):
             )
         return r.json()
 
-    def get_sample_metadata(self, accession):
-        r = self.make_request(accession)
+    def get_sample_metadata(self, accession, request):
         _meta = {}
         try:
-            metadata = r['data']['attributes']['sample-metadata']
+            metadata = request['data']['attributes']['sample-metadata']
             logger.debug(metadata)
         except KeyError:
             try:
                 metadata = \
-                    r['included'][0]['attributes']['sample-metadata']
+                    request['included'][0]['attributes']['sample-metadata']
                 logger.debug(metadata)
             except KeyError:
                 return _meta
         for m in metadata:
             unit = html.unescape(m['unit']) if m['unit'] else ""
             _meta[m['key'].replace(" ", "_")] = "{value} {unit}".format(value=m['value'], unit=unit)  # noqa
+
+        try:
+            _meta['biome'], _meta['lineage'] = self.get_biome(request)
+        except ValueError:
+            pass
         return _meta
+
+    def get_biome(self, request):
+        _biome = None
+        try:
+            _biome = request['data']['relationships']['biome']['data']['id']
+            logger.debug(_biome)
+        except KeyError:
+            try:
+                _biome = request['included'][0]['relationships']['biome']['data']['id']  # noqa
+                logger.debug(_biome)
+            except KeyError:
+                pass
+        if _biome is not None:
+            _biome = _biome.split(":")
+            try:
+                _biome = _biome.pop(_biome.index("root"))
+            except ValueError:
+                pass
+            return _biome[:-1], ":".join(_biome)
+        raise ValueError("Biome doesn't exist.")
 
     def fetch_results(self):
         csv_rows = dict()
@@ -144,7 +204,10 @@ class SequenceSearch(object):
                     csv_rows[uuid]['uniprot'] = ",".join(
                         [i[0] for i in h.get('uniprot_link', [])])
 
-                    _meta = self.get_sample_metadata(accession=accession)
+                    req = self.make_request(accession)
+                    _meta = self.get_sample_metadata(
+                        accession=accession, request=req
+                    )
                     csv_rows[uuid].update(_meta)
         return csv_rows
 

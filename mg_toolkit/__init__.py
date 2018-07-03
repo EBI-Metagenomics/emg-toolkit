@@ -68,6 +68,7 @@ def main():
         'sequence_search',
         help='Search non-redundant protein database using HMMER'
     )
+
     sequence_search_parser.add_argument(
         '-seq', '--sequence', required=True, type=is_file, nargs='+',
         help='Provide path to fasta file.'
@@ -78,25 +79,58 @@ def main():
         help='Choose peptide database (default: %(default)s).'
     )
 
-    sequence_search_parser.add_argument(
-        '-incE', '--seq_evalue_threshold', type=float, default=0.01,
+    sequence_search_subparser = \
+        sequence_search_parser.add_subparsers(dest='threshold')
+
+    # e-value
+    evalue_parser = sequence_search_subparser.add_parser(
+        'evalue',
+        help='Search non-redundant protein database using HMMER.'
+    )
+    evalue_parser.add_argument(
+        '-incE', '--seq-evalue-threshold', type=float, default=0.01,
         help=('Sequence E-value threshold. Accepted value 0 < x ≤ 10 '
               '(default: %(default)s).')
     )
-    sequence_search_parser.add_argument(
-        '-incdomE', '--hit_evalue_threshold', type=float, default=0.03,
-        help=('Hit E-value threshold. Accepted value 10 < x ≤ 10 '
+    evalue_parser.add_argument(
+        '-incdomE', '--hit-evalue-threshold', type=float, default=0.03,
+        help=('Hit E-value threshold. Accepted value 0 < x ≤ 10 '
+              '(default: %(default)s).')
+    )
+    evalue_parser.add_argument(
+        '-E', '--report-seq-evalue-threshold', type=float, default=1,
+        help=('Sequence E-value threshold (reporting).'
+              'Accepted value 0 < x ≤ 10 (default: %(default)s).')
+    )
+    evalue_parser.add_argument(
+        '-domE', '--report-hit-evalue-threshold', type=float, default=1,
+        help=('Hit E-value threshold (reporting). Accepted value 0 < x ≤ 10 '
               '(default: %(default)s).')
     )
 
-    sequence_search_parser.add_argument(
-        '-incT', '--seq_bitscore_threshold', type=float, default=25,
+    # bit score
+    bitscore_parser = sequence_search_subparser.add_parser(
+        'bitscore',
+        help='Search non-redundant protein database using HMMER.'
+    )
+    bitscore_parser.add_argument(
+        '-incT', '--seq-bitscore-threshold', type=float, default=25,
         help=('Sequence bit score threshold. Accepted values x > 0 '
               '(default: %(default)s).')
     )
-    sequence_search_parser.add_argument(
-        '-incdomT', '--hit_bitscore_threshold', type=float, default=23,
+    bitscore_parser.add_argument(
+        '-incdomT', '--hit-bitscore-threshold', type=float, default=23,
         help=('Hit bit score threshold. Accepted values x > 0 '
+              '(default: %(default)s).')
+    )
+    bitscore_parser.add_argument(
+        '-T', '--report-seq-bitscore-threshold', type=float, default=7,
+        help=('Sequence E-value threshold (reporting). Accepted values x > 0 '
+              '(default: %(default)s).')
+    )
+    bitscore_parser.add_argument(
+        '-domT', '--report-hit-bitscore-threshold', type=float, default=5,
+        help=('Hit E-value threshold (reporting). Accepted values x > 0 '
               '(default: %(default)s).')
     )
 
