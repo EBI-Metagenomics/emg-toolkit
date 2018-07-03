@@ -32,6 +32,9 @@ if "test" in sys.argv:
     with open(_requirements_test) as f:
         test_requirements = f.read().splitlines()
 
+long_description = ""
+with open(os.path.join(_base, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 
 setup(
     name="mg-toolkit",
@@ -39,11 +42,10 @@ setup(
     author='Ola Tarkowska',
     author_email='olat@ebi.ac.uk',
     description='Metagenomics toolkit',
-    long_description=open(
-        os.path.join(os.path.dirname(__file__), 'README.rst')
-    ).read(),
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     packages=find_packages(exclude=['ez_setup']),
-    version="0.2.2",
+    version="0.2.3",
     install_requires=install_requirements,
     setup_requires=['pytest-runner'],
     tests_require=test_requirements,
