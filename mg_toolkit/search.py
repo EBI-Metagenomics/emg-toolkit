@@ -38,7 +38,6 @@ def sequence_search(args):
     for s in args.pop("sequence"):
         with open(s) as f:
             sequence = f.read()
-            logger.debug("Sequence %s" % sequence)
             seq = SequenceSearch(
                 sequence,
                 database=args.pop("database", "full"),
@@ -59,7 +58,10 @@ def sequence_search(args):
                 report_hit_bitscore_threshold=args.pop(
                     "report_hit_bitscore_threshold", None),
             )
-            seq.save_to_csv(seq.fetch_results())
+            results = seq.analyse_sequence()
+            job_uuid = results['results']['uuid']
+            logger.debug("Job %s" % job_uuid)
+            seq.save_to_csv(seq.fetch_results(results), filename=job_uuid)
 
 
 class SequenceSearch(object):
@@ -118,7 +120,7 @@ class SequenceSearch(object):
             'Accept': 'application/json',
             'Content-Type': 'application/x-www-form-urlencoded',
         }
-        logger.debug(data)
+        logger.debug("POST: %r" % data)
         return requests.post(MG_SEQ_URL, data=data, headers=headers).json()
 
     def make_request(self, accession):
@@ -175,9 +177,9 @@ class SequenceSearch(object):
             return _biome.split(":")[-1], _biome
         raise ValueError("Biome doesn't exist.")
 
-    def fetch_results(self):
+    def fetch_results(self, results):
         csv_rows = dict()
-        for h in self.analyse_sequence()['results']['hits']:
+        for h in results['results']['hits']:
             acc2 = h.get('acc2', None)
             if acc2 is not None:
                 for accession in acc2.split(","):
@@ -206,9 +208,8 @@ class SequenceSearch(object):
                     csv_rows[uuid].update(_meta)
         return csv_rows
 
-    def save_to_csv(self, csv_rows, filename=None):
+    def save_to_csv(self, csv_rows, filename):
         df = DataFrame(csv_rows).T
         df.index.name = 'name'
-        if filename is None:
-            filename = "{}.csv".format('search_metadata')
+        filename = "{}_sequence_search.csv".format(filename)
         df.to_csv(filename)
