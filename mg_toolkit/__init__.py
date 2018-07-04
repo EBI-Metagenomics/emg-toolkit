@@ -23,7 +23,7 @@ import mg_toolkit
 from .metadata import original_metadata  # noqa
 from .search import sequence_search  # noqa
 
-__version__ = '0.2.7'
+__version__ = '0.3.0'
 __all__ = [
     'original_metadata',
     'sequence_search',
