@@ -22,11 +22,13 @@ import mg_toolkit
 
 from .metadata import original_metadata  # noqa
 from .search import sequence_search  # noqa
+from .bulk_download import bulk_download  # noqa
 
 __version__ = '0.5.0'
 __all__ = [
     'original_metadata',
     'sequence_search',
+    'bulk_download'
 ]
 
 
@@ -40,43 +42,43 @@ def is_file(filename):
 
 def main():
     parser = argparse.ArgumentParser(
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        description=textwrap.dedent('''\
+            formatter_class=argparse.RawDescriptionHelpFormatter,
+            description=textwrap.dedent('''\
             Metagenomics toolkit
             --------------------''')
     )
     parser.add_argument(
-        '-V', '--version', action='version', version=__version__,
-        help='print version information'
+            '-V', '--version', action='version', version=__version__,
+            help='print version information'
     )
     parser.add_argument(
-        '-d', '--debug', action='store_true',
-        help='print debugging information'
+            '-d', '--debug', action='store_true',
+            help='print debugging information'
     )
 
     subparsers = parser.add_subparsers(dest='tool')
 
     original_metadata_parser = subparsers.add_parser(
-        'original_metadata', help='Download original metadata.'
+            'original_metadata', help='Download original metadata.'
     )
     original_metadata_parser.add_argument(
-        '-a', '--accession', required=True, nargs='+',
-        help='Provide study accession, e.g. PRJEB1787 or ERP001736.'
+            '-a', '--accession', required=True, nargs='+',
+            help='Provide study accession, e.g. PRJEB1787 or ERP001736.'
     )
 
     sequence_search_parser = subparsers.add_parser(
-        'sequence_search',
-        help='Search non-redundant protein database using HMMER'
+            'sequence_search',
+            help='Search non-redundant protein database using HMMER'
     )
 
     sequence_search_parser.add_argument(
-        '-seq', '--sequence', required=True, type=is_file, nargs='+',
-        help='Provide path to fasta file.'
+            '-seq', '--sequence', required=True, type=is_file, nargs='+',
+            help='Provide path to fasta file.'
     )
     sequence_search_parser.add_argument(
-        '-db', '--database', type=str, choices=['full', 'all', 'partial', ],
-        default='full',
-        help='Choose peptide database (default: %(default)s).'
+            '-db', '--database', type=str, choices=['full', 'all', 'partial', ],
+            default='full',
+            help='Choose peptide database (default: %(default)s).'
     )
 
     sequence_search_subparser = \
@@ -84,54 +86,93 @@ def main():
 
     # e-value
     evalue_parser = sequence_search_subparser.add_parser(
-        'evalue',
-        help='Search non-redundant protein database using HMMER.'
+            'evalue',
+            help='Search non-redundant protein database using HMMER.'
     )
     evalue_parser.add_argument(
-        '-incE', '--seq-evalue-threshold', type=float, default=0.01,
-        help=('Sequence E-value threshold. Accepted value 0 < x ≤ 10 '
-              '(default: %(default)s).')
+            '-incE', '--seq-evalue-threshold', type=float, default=0.01,
+            help=('Sequence E-value threshold. Accepted value 0 < x ≤ 10 '
+                  '(default: %(default)s).')
     )
     evalue_parser.add_argument(
-        '-incdomE', '--hit-evalue-threshold', type=float, default=0.03,
-        help=('Hit E-value threshold. Accepted value 0 < x ≤ 10 '
-              '(default: %(default)s).')
+            '-incdomE', '--hit-evalue-threshold', type=float, default=0.03,
+            help=('Hit E-value threshold. Accepted value 0 < x ≤ 10 '
+                  '(default: %(default)s).')
     )
     evalue_parser.add_argument(
-        '-E', '--report-seq-evalue-threshold', type=float, default=1,
-        help=('Sequence E-value threshold (reporting).'
-              'Accepted value 0 < x ≤ 10 (default: %(default)s).')
+            '-E', '--report-seq-evalue-threshold', type=float, default=1,
+            help=('Sequence E-value threshold (reporting).'
+                  'Accepted value 0 < x ≤ 10 (default: %(default)s).')
     )
     evalue_parser.add_argument(
-        '-domE', '--report-hit-evalue-threshold', type=float, default=1,
-        help=('Hit E-value threshold (reporting). Accepted value 0 < x ≤ 10 '
-              '(default: %(default)s).')
+            '-domE', '--report-hit-evalue-threshold', type=float, default=1,
+            help=('Hit E-value threshold (reporting). Accepted value 0 < x ≤ 10 '
+                  '(default: %(default)s).')
     )
 
     # bit score
     bitscore_parser = sequence_search_subparser.add_parser(
-        'bitscore',
-        help='Search non-redundant protein database using HMMER.'
+            'bitscore',
+            help='Search non-redundant protein database using HMMER.'
     )
     bitscore_parser.add_argument(
-        '-incT', '--seq-bitscore-threshold', type=float, default=25,
-        help=('Sequence bit score threshold. Accepted values x > 0 '
-              '(default: %(default)s).')
+            '-incT', '--seq-bitscore-threshold', type=float, default=25,
+            help=('Sequence bit score threshold. Accepted values x > 0 '
+                  '(default: %(default)s).')
     )
     bitscore_parser.add_argument(
-        '-incdomT', '--hit-bitscore-threshold', type=float, default=23,
-        help=('Hit bit score threshold. Accepted values x > 0 '
-              '(default: %(default)s).')
+            '-incdomT', '--hit-bitscore-threshold', type=float, default=23,
+            help=('Hit bit score threshold. Accepted values x > 0 '
+                  '(default: %(default)s).')
     )
     bitscore_parser.add_argument(
-        '-T', '--report-seq-bitscore-threshold', type=float, default=7,
-        help=('Sequence E-value threshold (reporting). Accepted values x > 0 '
-              '(default: %(default)s).')
+            '-T', '--report-seq-bitscore-threshold', type=float, default=7,
+            help=('Sequence E-value threshold (reporting). Accepted values x > 0 '
+                  '(default: %(default)s).')
     )
     bitscore_parser.add_argument(
-        '-domT', '--report-hit-bitscore-threshold', type=float, default=5,
-        help=('Hit E-value threshold (reporting). Accepted values x > 0 '
-              '(default: %(default)s).')
+            '-domT', '--report-hit-bitscore-threshold', type=float, default=5,
+            help=('Hit E-value threshold (reporting). Accepted values x > 0 '
+                  '(default: %(default)s).')
+    )
+
+    bulk_download_parser = subparsers.add_parser(
+            'bulk_download', help='Download result files in bulks for an entire study.'
+    )
+
+    bulk_download_parser.add_argument(
+            '-a', '--accession', required=True,
+            help='Provide the study/project accession of your interest, e.g. ERP001736, SRP000319. '
+                 'The study must be publicly available in MGnify. **MANDATORY**'
+    )
+
+    bulk_download_parser.add_argument(
+            '-o', '--output_path', required=False,
+            help='Location of the output directory, where the downloadable files are written to. **OPTIONAL** '
+                 'DEFAULT: CWD'
+    )
+
+    bulk_download_parser.add_argument(
+            '-v', '--version', required=False,
+            help='Specify the version of the pipeline you are interested in. Lets say your study of interest has '
+                 'been analysed with multiple version, but you are only interested in a particular version then '
+                 'used this option to filter down the results by the version you interested in. **OPTIONAL** '
+                 'DEFAULT: Downloads all versions'
+    )
+
+    bulk_download_parser.add_argument(
+            '-g', '--result_group', required=False,
+            help='Provide a single result group if needed.'
+                 'Supported result groups are: '
+                 '[sequence_data (all version), '
+                 'functional_analysis (all version), '
+                 'taxonomic_analysis (1.0-3.0), '
+                 'taxonomic_analysis_ssu (>=4.0), '
+                 'taxonomic_analysis_lsu (>=4.0), '
+                 'stats, '
+                 'non_coding_rna (>=4.0) '
+                 '**OPTIONAL** '
+                 'DEFAULT: Downloads all result groups if not provided.'
     )
 
     args = parser.parse_args()
