@@ -181,8 +181,6 @@ class BulkDownloader(object):
                 params['pipeline_version'] = version
             f = Filter(urlencode(params))
             for analysis in s.iterate('analyses', f):
-                logging.info(
-                        analysis.accession + ", " + analysis.pipeline_version + ", " + analysis.run.accession + ", " + analysis.experiment_type)
                 experiment_type = analysis.experiment_type
                 analysis_job_pipeline_version = analysis.pipeline_version
                 downloads = analysis.downloads
@@ -210,6 +208,6 @@ class BulkDownloader(object):
 
         if counter == 0:
             logging.warning(
-                    "Could not retrieve any results for the given parameters!\n"
-                    "Study Id: " + project_id + "\n"
-                                                "Pipeline version: " + self.version if self.version else 'Not specified')
+                "Could not retrieve any results for the given parameters!\n"
+                "Study Id: " + project_id + "\n"
+                                            "Pipeline version: " + self.version if self.version else 'Not specified')
