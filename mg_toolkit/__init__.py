@@ -151,8 +151,7 @@ def main():
     bulk_download_parser.add_argument(
         '-o', '--output_path', required=False, default=os.getcwd(),
         help=('Location of the output directory, where the downloadable files '
-              'are written to.'
-              'DEFAULT: CWD')
+              'are written to.\nDEFAULT: CWD')
     )
 
     bulk_download_parser.add_argument(
@@ -163,28 +162,26 @@ def main():
               'Lets say your study of interest has been analysed with '
               'multiple version, but you are only interested in a particular '
               'version then used this option to filter down the results by '
-              'the version you interested in. **OPTIONAL** '
-              'DEFAULT: Downloads all versions')
+              'the version you interested in.\nDEFAULT: Downloads all versions')
     )
 
     bulk_download_parser.add_argument(
         '-g', '--result_group', required=False,
         choices=[
-            'sequence_data', 'functional_analysis', 'taxonomic_analysis',
-            'taxonomic_analysis_ssu', 'taxonomic_analysis_lsu', 'stats',
+            'sequence_data', 'functional_annotations', 'taxonomic_annotations',
+            'taxonomic_annot_ssu', 'taxonomic_annot_lsu', 'stats',
             'non_coding_rna'],
         help=('Provide a single result group if needed. '
               'Supported result groups are: '
               '[sequence_data (all version), '
-              'functional_analysis (all version), '
-              'taxonomic_analysis (1.0-3.0), '
-              'taxonomic_analysis_ssu (>=4.0), '
-              'taxonomic_analysis_lsu (>=4.0), '
+              'functional_annotations (all version), '
+              'taxonomic_annotations (1.0-3.0), '
+              'taxonomic_annot_ssu (>=4.0), '
+              'taxonomic_annot_lsu (>=4.0), '
               'stats, '
-              'non_coding_rna (>=4.0) '
-              '**OPTIONAL** '
-              'DEFAULT: Downloads all result groups if not provided.'
-              '(default: %(default)s).')
+              'non_coding_rna (>=4.0)'
+              '\nDEFAULT: Downloads all result groups if not provided.'
+              '\n(default: %(default)s).')
     )
 
     args = parser.parse_args()

@@ -18,15 +18,15 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
 MG_SEQ_URL = 'https://www.ebi.ac.uk/metagenomics/sequence-search/search/phmmer'
 
-MG_SAMPLE_URL = \
-    'https://www.ebi.ac.uk/metagenomics/api/latest/samples/{accession}'
+API_BASE = 'https://www.ebi.ac.uk/metagenomics/api/latest/'
+
+MG_SAMPLE_URL = API_BASE + '/samples/{accession}'
 
 MG_RUN_URL = (
-    'https://www.ebi.ac.uk/metagenomics/api/latest/runs/{accession}'
-    '?include=sample'
+        API_BASE + '/runs/{accession}'
+                   '?include=sample'
 )
 
 
