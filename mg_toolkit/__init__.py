@@ -162,7 +162,8 @@ def main():
               'Lets say your study of interest has been analysed with '
               'multiple version, but you are only interested in a particular '
               'version then used this option to filter down the results by '
-              'the version you interested in.\nDEFAULT: Downloads all versions')
+              'the version you interested in.'
+              '\nDEFAULT: Downloads all versions')
     )
 
     bulk_download_parser.add_argument(
