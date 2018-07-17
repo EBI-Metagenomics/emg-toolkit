@@ -20,6 +20,7 @@ import sys
 from pathlib import Path
 from urllib.error import URLError
 from urllib.request import urlretrieve
+import requests
 
 try:
     from urllib import urlencode
@@ -190,59 +191,7 @@ class BulkDownloader(object):
         logging.info("Output directory: %s" % self.output_path)
         logging.debug("Python version: " + platform.python_version())
 
-    def run_jsonapi_client(self):
-        from jsonapi_client import Session, Filter
-        logging.debug(
-            "Using Python package jsonapi_client for API calls...")
-
-        project_id = self.project_id
-        version = self._get_pipeline_version(self.version)
-        dest_dir = self.output_path
-        result_group = self.result_group
-
-        counter = 0
-        with Session(API_BASE) as s:
-            params = {
-                'study_accession': project_id,
-                'page_size': 5,
-            }
-            if version:
-                params['pipeline_version'] = version
-            f = Filter(urlencode(params))
-            for analysis in s.iterate('analyses', f):
-                experiment_type = analysis.experiment_type
-                downloads = analysis.downloads
-                for download in downloads:
-                    counter += 1
-                    self.download_file(
-                        download_group_type_key=download.group_type,
-                        description_label=download.description.label,
-                        experiment_type=experiment_type,
-                        result_group=result_group,
-                        pipeline_version=analysis.pipeline_version,
-                        file_name=download.alias,
-                        download_url=download.url,
-                        project_id=project_id,
-                        dest_dir=dest_dir
-                    )
-
-        if counter == 0:
-            logging.warning(
-                "Could not retrieve any results for the given parameters!\n"
-                "Study Id: {0}\nPipeline version: {1}".format(
-                    project_id,
-                    self.version if self.version else 'Not specified'))
-
     def run(self):
-        try:
-            self.run_jsonapi_client()
-        except SyntaxError:
-            logging.debug("Using Python package requests for API calls...")
-            self.run_requests()
-
-    def run_requests(self):
-        import requests
-
         project_id = self.project_id
         version = self._get_pipeline_version(self.version)
         dest_dir = self.output_path
