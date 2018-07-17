@@ -192,6 +192,8 @@ class BulkDownloader(object):
 
     def run_jsonapi_client(self):
         from jsonapi_client import Session, Filter
+        logging.debug(
+            "Using Python package jsonapi_client for API calls...")
 
         project_id = self.project_id
         version = self._get_pipeline_version(self.version)
@@ -233,9 +235,6 @@ class BulkDownloader(object):
 
     def run(self):
         try:
-            from jsonapi_client import Session, Filter
-            logging.debug(
-                "Using Python package jsonapi_client for API calls...")
             self.run_jsonapi_client()
         except SyntaxError:
             logging.debug("Using Python package requests for API calls...")
