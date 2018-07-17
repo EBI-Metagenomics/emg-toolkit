@@ -22,11 +22,6 @@ from urllib.error import URLError
 from urllib.request import urlretrieve
 import requests
 
-try:
-    from urllib import urlencode
-except ImportError:
-    from urllib.parse import urlencode
-
 from .utils import (
     API_BASE,
     MG_ANALYSES_URL,
