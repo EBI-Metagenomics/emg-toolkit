@@ -15,6 +15,7 @@
 # limitations under the License.
 import logging
 import os
+import platform
 import sys
 from pathlib import Path
 from urllib.error import URLError
@@ -25,10 +26,11 @@ try:
 except ImportError:
     from urllib.parse import urlencode
 
-from jsonapi_client import Session, Filter
-
 from .utils import (
-    API_BASE
+    API_BASE,
+    MG_ANALYSES_URL,
+    MG_ANALYSES_DOWNLOADS_URL,
+    MG_ANALYSES_URL_INCL_VERSION
 )
 
 logger = logging.getLogger(__name__)
@@ -99,7 +101,13 @@ class BulkDownloader(object):
                              subdir_folder_name):
         sub_dir = Path(
             os.path.join(dest_dir, project_id, version, subdir_folder_name))
-        sub_dir.mkdir(parents=True, exist_ok=True)
+        logging.debug("Creating new path: " + str(sub_dir))
+        from distutils.version import LooseVersion
+        if LooseVersion(platform.python_version()) < LooseVersion("3.6"):
+            if not sub_dir.is_dir():
+                sub_dir.mkdir(parents=True)
+        else:
+            sub_dir.mkdir(parents=True, exist_ok=True)
         return sub_dir
 
     @staticmethod
@@ -125,6 +133,38 @@ class BulkDownloader(object):
             raise
         logging.debug("Download finished.")
 
+    def download_file(self, download_group_type_key, description_label,
+                      experiment_type, pipeline_version,
+                      result_group, file_name, download_url, dest_dir,
+                      project_id):
+        download_group_type_value = \
+            self.download_group_types_dict.get(
+                download_group_type_key)
+        # TODO: Remove the following if case if EMG-742 is resolved
+        if experiment_type == 'amplicon' and description_label \
+                in self.non_amplicon_file_labels:
+            return
+            # TODO: Remove the following if case if EMG-741 is resolved
+        elif description_label == 'Phylogenetic tree' \
+                and pipeline_version == '2.0':
+            return
+        if result_group \
+                and result_group != download_group_type_value:
+            return
+        else:
+            subdir_folder_name = \
+                self.download_group_types_dict.get(
+                    download_group_type_key)
+            sub_dir = BulkDownloader. \
+                create_subdir_folder(dest_dir,
+                                     project_id,
+                                     pipeline_version,
+                                     subdir_folder_name)
+            output_file_name = os.path.join(dest_dir, str(sub_dir),
+                                            file_name)
+            BulkDownloader.download_resource_by_url(
+                download_url, output_file_name)
+
     def _get_pipeline_version(self, version):
         return self.pipeline_version_mapper.get(version)
 
@@ -141,14 +181,18 @@ class BulkDownloader(object):
         logging.info("Project: %s" % self.project_id)
 
         logging.info("Pipeline version: %s"
-                     % self.version if self.version else 'Not specified')
+                     % self.version if self.version else 'Pipeline version: '
+                                                         'Not specified')
         logging.info("Result group: %s" %
                      self.result_group if self.result_group else
-                     'Not specified')
+                     'Result group: Not specified')
         logging.info("API_BASE: %s" % API_BASE)
         logging.info("Output directory: %s" % self.output_path)
+        logging.debug("Python version: " + platform.python_version())
 
-    def run(self):
+    def run_jsonapi_client(self):
+        from jsonapi_client import Session, Filter
+
         project_id = self.project_id
         version = self._get_pipeline_version(self.version)
         dest_dir = self.output_path
@@ -165,40 +209,94 @@ class BulkDownloader(object):
             f = Filter(urlencode(params))
             for analysis in s.iterate('analyses', f):
                 experiment_type = analysis.experiment_type
-                analysis_job_pipeline_version = analysis.pipeline_version
                 downloads = analysis.downloads
                 for download in downloads:
                     counter += 1
-                    download_group_type_key = download.group_type
-                    download_group_type_value = \
-                        self.download_group_types_dict.get(
-                            download_group_type_key)
-                    description_label = download.description.label
-                    # TODO: Remove the following if case if EMG-742 is resolved
-                    if experiment_type == 'amplicon' and description_label \
-                            in self.non_amplicon_file_labels:
-                        continue
-                    # TODO: Remove the following if case if EMG-741 is resolved
-                    elif description_label == 'Phylogenetic tree' \
-                            and analysis_job_pipeline_version == '2.0':
-                        continue
-                    if result_group \
-                            and result_group != download_group_type_value:
-                        continue
-                    else:
-                        subdir_folder_name = \
-                            self.download_group_types_dict.get(
-                                download_group_type_key)
-                        sub_dir = BulkDownloader. \
-                            create_subdir_folder(dest_dir,
-                                                 project_id,
-                                                 analysis_job_pipeline_version,
-                                                 subdir_folder_name)
-                        file_name = download.alias
-                        output_file_name = os.path.join(dest_dir, str(sub_dir),
-                                                        file_name)
-                        BulkDownloader.download_resource_by_url(
-                            download.url, output_file_name)
+                    self.download_file(
+                        download_group_type_key=download.group_type,
+                        description_label=download.description.label,
+                        experiment_type=experiment_type,
+                        result_group=result_group,
+                        pipeline_version=analysis.pipeline_version,
+                        file_name=download.alias,
+                        download_url=download.url,
+                        project_id=project_id,
+                        dest_dir=dest_dir
+                    )
+
+        if counter == 0:
+            logging.warning(
+                "Could not retrieve any results for the given parameters!\n"
+                "Study Id: {0}\nPipeline version: {1}".format(
+                    project_id,
+                    self.version if self.version else 'Not specified'))
+
+    def run(self):
+        try:
+            from jsonapi_client import Session, Filter
+            logging.debug(
+                "Using Python package jsonapi_client for API calls...")
+            self.run_jsonapi_client()
+        except SyntaxError:
+            logging.debug("Using Python package requests for API calls...")
+            self.run_requests()
+
+    def run_requests(self):
+        import requests
+
+        project_id = self.project_id
+        version = self._get_pipeline_version(self.version)
+        dest_dir = self.output_path
+        result_group = self.result_group
+
+        headers = {
+            'Accept': 'application/vnd.api+json',
+        }
+        params = {
+            'accession': project_id,
+            'page_size': 5,
+        }
+        if version:
+            params['pipeline_version'] = version
+            response = requests.get(
+                MG_ANALYSES_URL_INCL_VERSION.format(**params),
+                headers=headers)
+        else:
+            response = requests.get(
+                MG_ANALYSES_URL.format(**params),
+                headers=headers)
+
+        analyses = response.json()['data']
+        counter = 0
+        for analysis in analyses:
+            analysis_job_id = analysis.get('id')
+            analysis_attr = analysis['attributes']
+            experiment_type = analysis_attr['experiment-type']
+            pipeline_version = analysis_attr['pipeline-version']
+
+            download_response = requests.get(
+                MG_ANALYSES_DOWNLOADS_URL.format(
+                    **{'accession': analysis_job_id}),
+                headers=headers)
+            downloads = download_response.json()['data']
+            for download in downloads:
+                download_attr = download['attributes']
+                alias = download_attr['alias']
+                group_type = download_attr['group-type']
+                desc_label = download_attr['description']['label']
+                download_url = download['links']['self']
+                counter += 1
+                self.download_file(
+                    download_group_type_key=group_type,
+                    description_label=desc_label,
+                    experiment_type=experiment_type,
+                    result_group=result_group,
+                    pipeline_version=pipeline_version,
+                    file_name=alias,
+                    download_url=download_url,
+                    project_id=project_id,
+                    dest_dir=dest_dir
+                )
 
         if counter == 0:
             logging.warning(
