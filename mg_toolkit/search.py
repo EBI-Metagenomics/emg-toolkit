@@ -112,9 +112,9 @@ class SequenceSearch(object):
         if self.hit_bitscore_threshold is not None:
             data["incdomT"] = self.hit_bitscore_threshold
         if self.report_seq_bitscore_threshold is not None:
-            data["incT"] = self.report_seq_bitscore_threshold
+            data["T"] = self.report_seq_bitscore_threshold
         if self.report_hit_bitscore_threshold is not None:
-            data["incdomT"] = self.report_hit_bitscore_threshold
+            data["domT"] = self.report_hit_bitscore_threshold
 
         headers = {
             'Accept': 'application/json',
