@@ -39,7 +39,7 @@ def bulk_download(args):
     logging.info("Running bulk download now...")
     project_id = args.accession
     output_path = args.output_path
-    version = args.version
+    version = args.pipeline
     result_group = args.result_group
     program = BulkDownloader(project_id, output_path, version, result_group)
     program.run()

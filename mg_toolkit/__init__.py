@@ -155,7 +155,7 @@ def main():
     )
 
     bulk_download_parser.add_argument(
-        '-v', '--version', required=False, choices=[
+        '-p', '--pipeline', required=False, choices=[
             '1.0', '2.0', '3.0', '4.0', '4.1',
         ],
         help=('Specify the version of the pipeline you are interested in. '
