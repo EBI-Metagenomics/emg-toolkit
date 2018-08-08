@@ -55,7 +55,7 @@ How to bulk download result files for an entire study?
 
     $ mg-toolkit bulk_download -h
     usage: mg-toolkit bulk_download [-h] -a ACCESSION [-o OUTPUT_PATH]
-                                      [-v {1.0,2.0,3.0,4.0,4.1}]
+                                      [-p {1.0,2.0,3.0,4.0,4.1}]
                                       [-g {sequence_data,functional_analysis,taxonomic_analysis,taxonomic_analysis_ssu,taxonomic_analysis_lsu,stats,non_coding_rna}]
       
     optional arguments:
@@ -67,7 +67,7 @@ How to bulk download result files for an entire study?
       -o OUTPUT_PATH, --output_path OUTPUT_PATH
                             Location of the output directory, where the
                             downloadable files are written to. DEFAULT: CWD
-      -v {1.0,2.0,3.0,4.0,4.1}, --version {1.0,2.0,3.0,4.0,4.1}
+      -p {1.0,2.0,3.0,4.0,4.1}, --pipeline {1.0,2.0,3.0,4.0,4.1}
                             Specify the version of the pipeline you are interested
                             in. Lets say your study of interest has been analysed
                             with multiple version, but you are only interested in

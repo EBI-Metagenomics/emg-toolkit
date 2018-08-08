@@ -33,8 +33,8 @@ if "test" in sys.argv:
         test_requirements = f.read().splitlines()
 
 long_description = ""
-with open(os.path.join(_base, 'README.md'), encoding='utf-8') as f:
-    long_description = f.read()
+with open(os.path.join(_base, 'README.md'), 'rb') as f:
+    long_description = f.read().decode('utf-8')
 
 setup(
     name="mg-toolkit",
@@ -45,7 +45,8 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     packages=find_packages(exclude=['ez_setup']),
-    version="0.6.0",
+    version="0.6.1",
+    python_requires=">=3.4",
     install_requires=install_requirements,
     setup_requires=['pytest-runner'],
     tests_require=test_requirements,
