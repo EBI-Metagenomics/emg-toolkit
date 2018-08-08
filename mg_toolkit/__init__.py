@@ -22,11 +22,13 @@ import mg_toolkit
 
 from .metadata import original_metadata  # noqa
 from .search import sequence_search  # noqa
+from .bulk_download import bulk_download  # noqa
 
 __version__ = '0.5.0'
 __all__ = [
     'original_metadata',
     'sequence_search',
+    'bulk_download'
 ]
 
 
@@ -42,8 +44,8 @@ def main():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description=textwrap.dedent('''\
-            Metagenomics toolkit
-            --------------------''')
+        Metagenomics toolkit
+        --------------------''')
     )
     parser.add_argument(
         '-V', '--version', action='version', version=__version__,
@@ -132,6 +134,55 @@ def main():
         '-domT', '--report-hit-bitscore-threshold', type=float, default=5,
         help=('Hit E-value threshold (reporting). Accepted values x > 0 '
               '(default: %(default)s).')
+    )
+
+    bulk_download_parser = subparsers.add_parser(
+        'bulk_download',
+        help='Download result files in bulks for an entire study.'
+    )
+
+    bulk_download_parser.add_argument(
+        '-a', '--accession', required=True,
+        help=('Provide the study/project accession of your interest, e.g. '
+              'ERP001736, SRP000319. The study must be publicly available in '
+              'MGnify.')
+    )
+
+    bulk_download_parser.add_argument(
+        '-o', '--output_path', required=False, default=os.getcwd(),
+        help=('Location of the output directory, where the downloadable files '
+              'are written to.\nDEFAULT: CWD')
+    )
+
+    bulk_download_parser.add_argument(
+        '-v', '--version', required=False, choices=[
+            '1.0', '2.0', '3.0', '4.0', '4.1',
+        ],
+        help=('Specify the version of the pipeline you are interested in. '
+              'Lets say your study of interest has been analysed with '
+              'multiple version, but you are only interested in a particular '
+              'version then used this option to filter down the results by '
+              'the version you interested in.'
+              '\nDEFAULT: Downloads all versions')
+    )
+
+    bulk_download_parser.add_argument(
+        '-g', '--result_group', required=False,
+        choices=[
+            'sequence_data', 'functional_annotations', 'taxonomic_annotations',
+            'taxonomic_annot_ssu', 'taxonomic_annot_lsu', 'stats',
+            'non_coding_rna'],
+        help=('Provide a single result group if needed. '
+              'Supported result groups are: '
+              '[sequence_data (all version), '
+              'functional_annotations (all version), '
+              'taxonomic_annotations (1.0-3.0), '
+              'taxonomic_annot_ssu (>=4.0), '
+              'taxonomic_annot_lsu (>=4.0), '
+              'stats, '
+              'non_coding_rna (>=4.0)'
+              '\nDEFAULT: Downloads all result groups if not provided.'
+              '\n(default: %(default)s).')
     )
 
     args = parser.parse_args()
