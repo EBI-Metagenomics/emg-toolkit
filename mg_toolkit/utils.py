@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 MG_SEQ_URL = 'https://www.ebi.ac.uk/metagenomics/sequence-search/search/phmmer'
 
-API_BASE = 'https://www.ebi.ac.uk/metagenomics/api/latest/'
+API_BASE = 'https://www.ebi.ac.uk/metagenomics/api/latest'
 
 MG_SAMPLE_URL = API_BASE + '/samples/{accession}'
 

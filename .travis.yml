@@ -23,6 +23,9 @@ script:
   - if ! diff -q ERP001178.csv tests/ERP001178.csv &>/dev/null; then exit 1; fi
   - mg-toolkit -d bulk_download -a MGYS00002478
   - if ! diff -q MGYS00002478/4.1/non_coding_rna/ERR169332.5_8S_rRNA.RF00002.fa tests/ERR169332.5_8S_rRNA.RF00002.fa &>/dev/null; then exit 1; fi
+  - mg-toolkit -d sequence_search --sequence tests/test.fasta -db full evalue -E 1.1e-240 -domE 0.01 -incE 1.1e-240 -incdomE 0.01
+  - res=$(ls *sequence_search.csv)
+  - if ! diff -q $res tests/sequence_search.csv &>/dev/null; then exit 1; fi
 
 notifications:
   slack:

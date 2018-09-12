@@ -1,0 +1,3 @@
+name,ENA_checklist,NCBI_sample_classification,biome,collection_date,desc,environmental_package,evalue,host_scientific_name,host_sex,instrument_model,investigation_type,kg,lineage,name,nreported,project_name,pvalue,score,sequencing_method,species,taxid,uniprot
+MGYP000006146753 SRS018573,,,Human,,MGYP000006146753,,3.5e-265,Homo sapiens ,male ,Illumina Genome Analyzer II ,,,root:Host-associated:Human,MGYP000006146753,1,,-626.975499046055,890.8,,,,
+MGYP000160620212 ERR1474574,GSC MIxS human oral (ERC000016) ,256318 ,Saliva,2014 ,MGYP000160620212,human-oral ,2.0e-255,,,Illumina HiSeq 2500 ,metagenome ,,root:Host-associated:Human:Digestive system:Oral:Saliva,MGYP000160620212,1,Philippines oral microbiome ,-604.515441152367,858.6,Illumina HiSeq ,,,

@@ -43,7 +43,7 @@ Download metadata:
 
 Search non-redundant protein database using HMMER and fetch metadata:
 
-    $ mg-toolkit sequence_search -seq test.fasta -db full evalue --incE 0.02
+    $ mg-toolkit sequence_search -seq test.fasta -db full evalue -incE 0.02
 
     Databases:
     - full - Full length sequences (default)

@@ -177,35 +177,48 @@ class SequenceSearch(object):
             return _biome.split(":")[-1], _biome
         raise ValueError("Biome doesn't exist.")
 
+    def prepare_rows(self, hit):
+        _row = dict()
+        _row['kg'] = hit.get('kg', '')
+        _row['taxid'] = hit.get('taxid', '')
+        _row['name'] = hit.get('name', '')
+        _row['desc'] = hit.get('desc', '')
+        _row['pvalue'] = hit.get('pvalue', '')
+        _row['species'] = hit.get('species', '')
+        _row['score'] = hit.get('score', '')
+        _row['evalue'] = hit.get('evalue', '')
+        _row['nreported'] = hit.get('nreported', '')
+        _row['uniprot'] = ",".join(
+            [i[0] for i in hit.get('uniprot_link', [])])
+        return _row
+
     def fetch_results(self, results):
         csv_rows = dict()
-        for h in results['results']['hits']:
-            acc2 = h.get('acc2', None)
-            if acc2 is not None:
-                for accession in acc2.split(","):
-                    accession = accession.strip("...")
-                    logger.debug("Accession %s" % accession)
-                    uuid = "{n} {a}".format(
-                        **{'n': h['name'], 'a': accession})
-                    csv_rows[uuid] = dict()
-                    csv_rows[uuid]['accessions'] = accession
-                    csv_rows[uuid]['kg'] = h.get('kg', '')
-                    csv_rows[uuid]['taxid'] = h.get('taxid', '')
-                    csv_rows[uuid]['name'] = h.get('name', '')
-                    csv_rows[uuid]['desc'] = h.get('desc', '')
-                    csv_rows[uuid]['pvalue'] = h.get('pvalue', '')
-                    csv_rows[uuid]['species'] = h.get('species', '')
-                    csv_rows[uuid]['score'] = h.get('score', '')
-                    csv_rows[uuid]['evalue'] = h.get('evalue', '')
-                    csv_rows[uuid]['nreported'] = h.get('nreported', '')
-                    csv_rows[uuid]['uniprot'] = ",".join(
-                        [i[0] for i in h.get('uniprot_link', [])])
-
-                    req = self.make_request(accession)
-                    _meta = self.get_sample_metadata(
-                        accession=accession, request=req
-                    )
-                    csv_rows[uuid].update(_meta)
+        for hit in results['results']['hits']:
+            _row = self.prepare_rows(hit)
+            mgnify = hit.get('mgnify', [])
+            for res in mgnify.get('samples') or []:
+                accession = res[0]
+                logger.debug("Accession %s" % accession)
+                uuid = "{n} {a}".format(**{'n': hit['name'], 'a': accession})
+                csv_rows[uuid] = dict()
+                csv_rows[uuid].update(_row)
+                req = self.make_request(accession)
+                _meta = self.get_sample_metadata(
+                    accession=accession, request=req
+                )
+                csv_rows[uuid].update(_meta)
+            for res in mgnify.get('runs') or []:
+                accession = res[0]
+                logger.debug("Accession %s" % accession)
+                uuid = "{n} {a}".format(**{'n': hit['name'], 'a': accession})
+                csv_rows[uuid] = dict()
+                csv_rows[uuid].update(_row)
+                req = self.make_request(accession)
+                _meta = self.get_sample_metadata(
+                    accession=accession, request=req
+                )
+                csv_rows[uuid].update(_meta)
         return csv_rows
 
     def save_to_csv(self, csv_rows, filename):
