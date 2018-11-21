@@ -24,7 +24,7 @@ from .metadata import original_metadata  # noqa
 from .search import sequence_search  # noqa
 from .bulk_download import bulk_download  # noqa
 
-__version__ = '0.6.2'
+__version__ = '0.6.4'
 __all__ = [
     'original_metadata',
     'sequence_search',
