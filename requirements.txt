@@ -6,3 +6,4 @@ requests
 xmltodict
 pandas
 jsonapi_client
+tqdm

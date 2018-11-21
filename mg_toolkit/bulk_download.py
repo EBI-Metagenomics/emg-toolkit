@@ -21,12 +21,11 @@ from pathlib import Path
 from urllib.error import URLError
 from urllib.request import urlretrieve
 import requests
-
+from tqdm import tqdm
 from .utils import (
     API_BASE,
-    MG_ANALYSES_URL,
+    MG_ANALYSES_BASE_URL,
     MG_ANALYSES_DOWNLOADS_URL,
-    MG_ANALYSES_URL_INCL_VERSION
 )
 
 logger = logging.getLogger(__name__)
@@ -82,6 +81,9 @@ class BulkDownloader(object):
         self.version = version
         self.result_group = result_group
         self._init_program()
+        self.headers = {
+            'Accept': 'application/vnd.api+json',
+        }
 
     @staticmethod
     def check_config_value(config, key):
@@ -189,29 +191,49 @@ class BulkDownloader(object):
     def run(self):
         project_id = self.project_id
         version = self._get_pipeline_version(self.version)
-        dest_dir = self.output_path
-        result_group = self.result_group
 
-        headers = {
-            'Accept': 'application/vnd.api+json',
-        }
         params = {
-            'accession': project_id,
-            'page_size': 5,
+            'study_accession': project_id,
         }
+
         if version:
             params['pipeline_version'] = version
-            response = requests.get(
-                MG_ANALYSES_URL_INCL_VERSION.format(**params),
-                headers=headers)
-        else:
-            response = requests.get(
-                MG_ANALYSES_URL.format(**params),
-                headers=headers)
 
-        analyses = response.json()['data']
+        res = requests.get(
+            MG_ANALYSES_BASE_URL, params=params, headers=self.headers
+        ).json()
+        # num_pages = res['meta']['pagination']['pages']
+        num_results = res['meta']['pagination']['count']
+
+        num_results_processed = 0
+        total_results_processed = 0
+
+        with tqdm(total=num_results) as progress_bar:
+            while total_results_processed < num_results:
+                num_results_processed = self._process_page(res, progress_bar)
+                total_results_processed += num_results_processed
+                if res['links']['next'] is not None:
+                    res = requests.get(
+                        res['links']['next'], headers=self.headers
+                    ).json()
+
+        if total_results_processed == 0:
+            logging.warning(
+                "Could not retrieve any results for the given parameters!\n"
+                "Study Id: {0}\nPipeline version: {1}".format(
+                    project_id,
+                    self.version if self.version else 'Not specified'))
+        elif num_results != total_results_processed:
+            logging.warning("Only processed " + str(
+                total_results_processed) + '/' + str(
+                num_results) + " results!")
+        logging.info("Process " + str(total_results_processed) + " results.")
+        print("\n Download complete!")
+
+    def _process_page(self, page, progress_bar):
+        analyses = page['data']
         counter = 0
-        for analysis in analyses:
+        for analysis in tqdm(analyses):
             analysis_job_id = analysis.get('id')
             analysis_attr = analysis['attributes']
             experiment_type = analysis_attr['experiment-type']
@@ -220,7 +242,7 @@ class BulkDownloader(object):
             download_response = requests.get(
                 MG_ANALYSES_DOWNLOADS_URL.format(
                     **{'accession': analysis_job_id}),
-                headers=headers)
+                headers=self.headers)
             downloads = download_response.json()['data']
             for download in downloads:
                 download_attr = download['attributes']
@@ -228,22 +250,17 @@ class BulkDownloader(object):
                 group_type = download_attr['group-type']
                 desc_label = download_attr['description']['label']
                 download_url = download['links']['self']
-                counter += 1
                 self.download_file(
                     download_group_type_key=group_type,
                     description_label=desc_label,
                     experiment_type=experiment_type,
-                    result_group=result_group,
+                    result_group=self.result_group,
                     pipeline_version=pipeline_version,
                     file_name=alias,
                     download_url=download_url,
-                    project_id=project_id,
-                    dest_dir=dest_dir
+                    project_id=self.project_id,
+                    dest_dir=self.output_path
                 )
-
-        if counter == 0:
-            logging.warning(
-                "Could not retrieve any results for the given parameters!\n"
-                "Study Id: {0}\nPipeline version: {1}".format(
-                    project_id,
-                    self.version if self.version else 'Not specified'))
+            progress_bar.update(1)
+            counter += 1
+        return counter

@@ -29,11 +29,7 @@ MG_RUN_URL = (
                    '?include=sample'
 )
 
-MG_ANALYSES_URL = API_BASE + '/analyses?study_accession={accession}' \
-                             '&page_size=5'
-
-MG_ANALYSES_URL_INCL_VERSION = \
-    MG_ANALYSES_URL + '&pipeline_version={pipeline_version}'
+MG_ANALYSES_BASE_URL = API_BASE + '/analyses'
 
 MG_ANALYSES_DOWNLOADS_URL = API_BASE + '/analyses/{accession}/downloads'
 
