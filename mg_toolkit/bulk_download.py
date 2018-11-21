@@ -26,7 +26,6 @@ from .utils import (
     API_BASE,
     MG_ANALYSES_BASE_URL,
     MG_ANALYSES_DOWNLOADS_URL,
-    add_url_filter
 )
 
 logger = logging.getLogger(__name__)
@@ -195,41 +194,28 @@ class BulkDownloader(object):
 
         params = {
             'study_accession': project_id,
-            'page_size': 5,
-            'page': 1
         }
-
-        base_url = MG_ANALYSES_BASE_URL
-        url_template = add_url_filter(base_url=base_url,
-                                      field_name='study_accession',
-                                      separator='?')
-        url_template = add_url_filter(url_template, 'page_size')
-        url_template = add_url_filter(url_template, 'page')
 
         if version:
             params['pipeline_version'] = version
-            url_template = add_url_filter(url_template,
-                                          'pipeline_version')
 
-        real_url = url_template.format(**params)
+        res = requests.get(
+            MG_ANALYSES_BASE_URL, params=params, headers=self.headers
+        ).json()
+        # num_pages = res['meta']['pagination']['pages']
+        num_results = res['meta']['pagination']['count']
 
-        session = requests.Session()
+        num_results_processed = 0
         total_results_processed = 0
-        first_page = session.get(real_url, headers=self.headers).json()
-        num_results_processed = self._process_page(first_page)
-        total_results_processed += num_results_processed
 
-        pagination = first_page['meta']['pagination']
-        num_pages = pagination.get('pages')
-        num_results = pagination.get('count')
-
-        for page in tqdm(range(2, num_pages + 1)):
-            params['page'] = page
-            real_url = url_template.format(**params)
-            next_page = session.get(real_url, headers=self.headers).json()
-            _num_results_processed = self._process_page(next_page)
-            total_results_processed += _num_results_processed
-            tqdm.write(str(page))
+        with tqdm(total=num_results) as progress_bar:
+            while total_results_processed < num_results:
+                num_results_processed = self._process_page(res, progress_bar)
+                total_results_processed += num_results_processed
+                if res['links']['next'] is not None:
+                    res = requests.get(
+                        res['links']['next'], headers=self.headers
+                    ).json()
 
         if total_results_processed == 0:
             logging.warning(
@@ -242,12 +228,12 @@ class BulkDownloader(object):
                 total_results_processed) + '/' + str(
                 num_results) + " results!")
         logging.info("Process " + str(total_results_processed) + " results.")
+        print("\n Download complete!")
 
-    def _process_page(self, page):
+    def _process_page(self, page, progress_bar):
         analyses = page['data']
         counter = 0
         for analysis in tqdm(analyses):
-            counter += 1
             analysis_job_id = analysis.get('id')
             analysis_attr = analysis['attributes']
             experiment_type = analysis_attr['experiment-type']
@@ -275,4 +261,6 @@ class BulkDownloader(object):
                     project_id=self.project_id,
                     dest_dir=self.output_path
                 )
+            progress_bar.update(1)
+            counter += 1
         return counter

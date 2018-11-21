@@ -48,8 +48,3 @@ def sample_url():
 
 def metadata_url():
     return 'https://www.ebi.ac.uk/ena/data/view/{accession}&display=xml'
-
-
-def add_url_filter(base_url, field_name, separator='&'):
-    return ''.join(
-        [base_url, separator, field_name, '={', field_name, '}'])
