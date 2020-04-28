@@ -24,7 +24,7 @@ from .metadata import original_metadata  # noqa
 from .search import sequence_search  # noqa
 from .bulk_download import bulk_download  # noqa
 
-__version__ = '0.6.4'
+__version__ = '0.6.5'
 __all__ = [
     'original_metadata',
     'sequence_search',
@@ -156,7 +156,7 @@ def main():
 
     bulk_download_parser.add_argument(
         '-p', '--pipeline', required=False, choices=[
-            '1.0', '2.0', '3.0', '4.0', '4.1',
+            '1.0', '2.0', '3.0', '4.0', '4.1', '5.0',
         ],
         help=('Specify the version of the pipeline you are interested in. '
               'Lets say your study of interest has been analysed with '
