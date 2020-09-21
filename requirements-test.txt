@@ -2,6 +2,4 @@
 # install and create a virtual environment
 # run pip install -r requirements-test
 
-pytest
-requests
-requests-mock
+flake8~=3.8.3

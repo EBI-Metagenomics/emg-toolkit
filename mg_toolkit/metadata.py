@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright 2018 EMBL - European Bioinformatics Institute
+# Copyright 2020 EMBL - European Bioinformatics Institute
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,21 +15,19 @@
 # limitations under the License.
 
 import logging
+import xml.etree.ElementTree as ET
+
 import requests
-import xmltodict
-import json
+
+from pandas import DataFrame
+
+from .constants import ENA_SEARCH_API_URL, ENA_XML_VIEW_URL
 
 try:
     from json.decoder import JSONDecodeError
 except ImportError:
     JSONDecodeError = ValueError
 
-from pandas import DataFrame
-
-from .utils import (
-    sample_url,
-    metadata_url
-)
 
 logger = logging.getLogger(__name__)
 
@@ -46,10 +44,9 @@ def original_metadata(args):
         om.save_to_csv(om.fetch_metadata())
 
 
-class OriginalMetadata(object):
-
+class OriginalMetadata:
     """
-    Helper tool allowing to download original metadata for the given accession.
+    Helper tool allowing to download original metadata for the given accession from ENA.
     """
 
     accession = None
@@ -58,61 +55,111 @@ class OriginalMetadata(object):
         self.accession = accession
 
     def get_metadata(self, sample_accession):
+        """Get the sample metadata from ENA API."""
+        return_meta = {}
 
-        """
-        Process XML.
-        """
+        response = requests.get(ENA_XML_VIEW_URL + "/" + sample_accession)
 
-        meta = dict()
-        sample = requests.get(
-            metadata_url().format(**{'accession': sample_accession})
-        )
-        x = json.loads(json.dumps(xmltodict.parse(sample.content)))
-        for m in x['ROOT']['SAMPLE']['SAMPLE_ATTRIBUTES']['SAMPLE_ATTRIBUTE']:
-            try:
-                key = m['TAG']
-            except KeyError:
+        if not response.ok:
+            logger.error("Metadata fetch failed for accession:" + self.accession)
+            return
+
+        metadata_xml = ET.fromstring(response.content)
+
+        for sample_attribute in metadata_xml.findall(
+            "./SAMPLE/SAMPLE_ATTRIBUTES/SAMPLE_ATTRIBUTE"
+        ):
+            tag = sample_attribute.find("TAG")
+            value = sample_attribute.find("VALUE")
+            # optional
+            units = sample_attribute.find("UNITS")
+            if tag is None:
+                # broken metadata but not fatal
                 continue
-            try:
-                value = m['VALUE']
-            except KeyError:
-                value = None
-            meta[key] = value
-        return meta
+
+            key = tag.text.strip()
+            key_value = None
+            if value is not None:
+                key_value = value.text.strip()
+            if units is not None:
+                key_value += units.text.strip()
+
+            return_meta[key] = key_value
+
+        return return_meta
 
     def fetch_metadata(self):
-        resp = requests.get(
-            sample_url().format(**{'accession': self.accession})
+        """Get metadata from ENA API."""
+        response = requests.get(
+            ENA_SEARCH_API_URL,
+            params={
+                "result": "read_run",
+                "query": " OR ".join(
+                    [
+                        "study_accession=" + self.accession,
+                        "secondary_study_accession=" + self.accession,
+                    ]
+                ),
+                "fields": ",".join(
+                    [
+                        "run_accession",
+                        "secondary_sample_accession",
+                        "sample_accession",
+                        "depth",
+                    ]
+                ),
+                "format": "json",
+            },
         )
+
+        if response.status_code in (
+            requests.codes.no_content,
+            requests.codes.not_found,
+        ):
+            logger.error("Accession not found in ENA")
+            return
+        if response.status_code in (
+            requests.codes.unauthorized,
+            requests.codes.forbidden,
+        ):
+            logger.error("Not authorized.")
+            return
+
         try:
-            resp = resp.json()
+            response_data = response.json()
         except JSONDecodeError:
+            logger.error(
+                "Error decoding ENA sample_metadata response for accession: "
+                + self.accession
+            )
             return
 
         _accessions = {
-            r['run_accession']:
-                {
-                    'sample_accession': r['secondary_sample_accession'],
-                    'read_depth': r['depth']
-                }
-            for r in resp
+            r["run_accession"]: {
+                "sample_accession": r["secondary_sample_accession"],
+                "read_depth": r["depth"],
+            }
+            for r in response_data
         }
 
         meta_csv = dict()
         _sample = None
         _meta = None
+
         for (run, sample) in _accessions.items():
             if sample != _sample:
-                _meta = self.get_metadata(sample['sample_accession'])
+                _meta = self.get_metadata(sample["sample_accession"])
             meta_csv[run] = _meta
-            meta_csv[run]['Sample'] = sample['sample_accession']
-            meta_csv[run]['Read depth'] = sample['read_depth']
-            _sample = sample['sample_accession']
+            meta_csv[run]["Sample"] = sample["sample_accession"]
+            meta_csv[run]["Read depth"] = sample["read_depth"]
+            _sample = sample["sample_accession"]
+
         return meta_csv
 
     def save_to_csv(self, meta_csv, filename=None):
+        """Store the CSV in a file"""
         df = DataFrame(meta_csv).T
-        df.index.name = 'Run'
+        df.index.name = "Run"
         if filename is None:
             filename = "{}.csv".format(self.accession)
         df.to_csv(filename)

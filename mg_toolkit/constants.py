@@ -14,10 +14,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from mg_toolkit.metadata import original_metadata
-from mg_toolkit.search import sequence_search
-from mg_toolkit.bulk_download import bulk_download
+MG_SEQ_URL = "https://www.ebi.ac.uk/metagenomics/sequence-search/search/phmmer"
 
-__all__ = ["original_metadata", "sequence_search", "bulk_download"]
+API_BASE = "https://www.ebi.ac.uk/metagenomics/api/latest"
 
-__version__ = "0.6.5"
+MG_SAMPLE_URL = API_BASE + "/samples/{accession}"
+
+MG_RUN_URL = API_BASE + "/runs/{accession}"
+
+MG_ANALYSES_BASE_URL = API_BASE + "/analyses"
+
+MG_ANALYSES_DOWNLOADS_URL = API_BASE + "/analyses/{accession}/downloads"
+
+ENA_SEARCH_API_URL = "https://www.ebi.ac.uk/ena/portal/api/search"
+ENA_XML_VIEW_URL = "https://www.ebi.ac.uk/ena/browser/api/xml"

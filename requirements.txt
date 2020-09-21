@@ -2,8 +2,7 @@
 # install and create a virtual environment
 # run pip install -r requirements
 
-requests
-xmltodict
-pandas
-jsonapi_client
-tqdm
+requests~=2.24.0
+pandas~=1.1.2
+jsonapi-client~=0.9.9
+tqdm~=4.49.0
