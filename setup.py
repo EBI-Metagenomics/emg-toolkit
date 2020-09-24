@@ -39,9 +39,9 @@ with open(os.path.join(_base, "README.md"), "rb") as f:
 setup(
     name="mg-toolkit",
     url="https://github.com/EBI-metagenomics/emg-toolkit",
-    author="Ola Tarkowska",
-    author_email="olat@ebi.ac.uk",
-    description="Metagenomics toolkit",
+    author="EBI Microbiome Informatics Team",
+    author_email="metagenomics@ebi.ac.uk",
+    description="Metagenomics toolkit.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=find_packages(exclude=["ez_setup"]),

@@ -100,3 +100,26 @@ How to download results of a specific version for given study accession?
 How to download specific result file groups (e.g. functional analysis only) for given study accession?
 
     $ mg-toolkit -d bulk_download -a ERP009703 -g functional_analysis
+
+
+Contributors
+============
+
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/olatarkowska"><img src="https://avatars3.githubusercontent.com/u/1065155?v=4" width="100px;" alt=""/><br /><sub><b>Ola Tarkowska</b></sub></a><br /><a href="https://github.com/EBI-Metagenomics/emg-toolkit/commits?author=olatarkowska" title="Code">💻</a><a href="https://github.com/EBI-Metagenomics/EMG-docs/commits/master?author=olatarkowska">📖</a></td>
+    <td align="center"><a href="https://github.com/mscheremetjew"><img src="https://avatars3.githubusercontent.com/u/1681284?v=4" width="100px;" alt=""/><br /><sub><b>Maxim Scheremetjew</b></sub></a><br /><a href="https://github.com/EBI-Metagenomics/emg-toolkit/commits?author=mscheremetjew" title="Code">💻</a><a href="https://github.com/EBI-Metagenomics/EMG-docs/commits/master?author=mscheremetjew">📖</a></td>
+    <td align="center"><a href="https://github.com/mberacochea"><img src="https://avatars3.githubusercontent.com/u/1123897?v=4" width="100px;" alt=""/><br /><sub><b>Martin Beracochea</b></sub></a><br /><a href="https://github.com/EBI-Metagenomics/emg-toolkit/commits?author=mberacochea" title="Code">💻</a></td>
+  </tr>
+</table>
+
+<!-- markdownlint-enable -->
+<!-- prettier-ignore-end -->
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
