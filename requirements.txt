@@ -2,7 +2,7 @@
 # install and create a virtual environment
 # run pip install -r requirements
 
-requests~=2.24.0
-pandas~=1.1.2
-jsonapi-client~=0.9.9
-tqdm~=4.49.0
+requests>=2.24.0
+pandas>=0.25.3
+jsonapi-client>=0.9.9
+tqdm>=4.49.0
