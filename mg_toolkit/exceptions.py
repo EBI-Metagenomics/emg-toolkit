@@ -14,10 +14,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from mg_toolkit.metadata import original_metadata
-from mg_toolkit.search import sequence_search
-from mg_toolkit.bulk_download import bulk_download
 
-__all__ = ["original_metadata", "sequence_search", "bulk_download"]
+class FailToGetException(Exception):
+    """Fail to get an url exception"""
 
-__version__ = "0.6.5"
+    def __init__(self, url, status_code, message, *arg, **kwargs):
+        self.url = url
+        self.status_code = status_code
+        message = "Failed to get URL: %s. HTTP Status Code: %s" % (
+            self.url,
+            self.status_code,
+        )
+        super().__init__(message)
+
+    def __str__(self):
+        print(self.message)

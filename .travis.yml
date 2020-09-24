@@ -1,31 +1,28 @@
 language: python
 
 python:
-  - '3.4'
-  - '3.5'
   - '3.6'
+  - '3.8'
 
 before_install:
   - python -V
 
+cache:
+  - pip
+
 install:
-  - pip install "flake8==3.4" "pycodestyle==2.3.1" pep8-naming
+  - pip install -r requirements-test.txt
   - python setup.py sdist bdist_wheel
+  - TARGZ=$(ls dist/mg-toolkit*.tar.gz)
+  - pip install -U $TARGZ
 
 before_script:
   - flake8 --version
-  - flake8 -v .
+  - flake8 $TRAVIS_BUILD_DIR/mg_toolkit --config $TRAVIS_BUILD_DIR/tox.ini --show-source --statistics
 
 script:
-  - targz=$(ls dist/mg-toolkit*.tar.gz)
-  - pip install -U $targz
-  - mg-toolkit -d original_metadata -a ERP001178
-  - if ! diff -q ERP001178.csv tests/ERP001178.csv &>/dev/null; then exit 1; fi
-  - mg-toolkit -d bulk_download -a MGYS00002478
-  - if ! diff -q MGYS00002478/4.1/non_coding_rna/ERR169332.5_8S_rRNA.RF00002.fa tests/ERR169332.5_8S_rRNA.RF00002.fa &>/dev/null; then exit 1; fi
-  - mg-toolkit -d sequence_search --sequence tests/test.fasta -db full evalue -E 1.1e-240 -domE 0.01 -incE 1.1e-240 -incdomE 0.01
-  - res=$(ls *sequence_search.csv)
-  - if ! diff -q $res tests/sequence_search.csv &>/dev/null; then exit 1; fi
+  - cd $TRAVIS_BUILD_DIR/tests
+  - bash tests.sh
 
 notifications:
   slack:

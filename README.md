@@ -53,44 +53,50 @@ Search non-redundant protein database using HMMER and fetch metadata:
 
 How to bulk download result files for an entire study?
 
-    $ mg-toolkit bulk_download -h
     usage: mg-toolkit bulk_download [-h] -a ACCESSION [-o OUTPUT_PATH]
-                                      [-p {1.0,2.0,3.0,4.0,4.1}]
-                                      [-g {sequence_data,functional_analysis,taxonomic_analysis,taxonomic_analysis_ssu,taxonomic_analysis_lsu,stats,non_coding_rna}]
-      
+                                    [-p {1.0,2.0,3.0,4.0,4.1,5.0}]
+                                    [-g {statistics,sequence_data,functional_analysis,taxonomic_analysis,taxonomic_analysis_ssu_rrna,taxonomic_analysis_lsu_rrna,non-coding_rnas,taxonomic_analysis_itsonedb,taxonomic_analysis_unite,taxonomic_analysis_motupathways_and_systems}]
+
     optional arguments:
-      -h, --help            show this help message and exit
-      -a ACCESSION, --accession ACCESSION
-                            Provide the study/project accession of your interest,
-                            e.g. ERP001736, SRP000319. The study must be publicly
-                            available in MGnify.
-      -o OUTPUT_PATH, --output_path OUTPUT_PATH
-                            Location of the output directory, where the
-                            downloadable files are written to. DEFAULT: CWD
-      -p {1.0,2.0,3.0,4.0,4.1}, --pipeline {1.0,2.0,3.0,4.0,4.1}
-                            Specify the version of the pipeline you are interested
-                            in. Lets say your study of interest has been analysed
-                            with multiple version, but you are only interested in
-                            a particular version then used this option to filter
-                            down the results by the version you interested in.
+    -h, --help            show this help message and exit
+    -a ACCESSION, --accession ACCESSION
+                            Provide the study/project accession of your interest, e.g. ERP001736, SRP000319. The study must be publicly available in MGnify.
+    -o OUTPUT_PATH, --output_path OUTPUT_PATH
+                            Location of the output directory, where the downloadable files are written to.
+                            DEFAULT: CWD
+    -p {1.0,2.0,3.0,4.0,4.1,5.0}, --pipeline {1.0,2.0,3.0,4.0,4.1,5.0}
+                            Specify the version of the pipeline you are interested in.
+                            Lets say your study of interest has been analysed with
+                            multiple version, but you are only interested in a particular
+                            version then used this option to filter down the results by
+                            the version you interested in.
                             DEFAULT: Downloads all versions
-      -g {sequence_data,functional_annotations,taxonomic_annotations,taxonomic_annot_ssu,taxonomic_annot_lsu,stats,non_coding_rna}, --result_group {sequence_data,functional_annotations,taxonomic_annotations,taxonomic_annot_ssu,taxonomic_annot_lsu,stats,non_coding_rna}
-                            Provide a single result group if needed. Supported
-                            result groups are: [sequence_data (all version),
-                            functional_annotations (all version),
-                            taxonomic_annotations (1.0-3.0), taxonomic_annot_ssu
-                            (>=4.0), taxonomic_annot_lsu (>=4.0), stats,
-                            non_coding_rna (>=4.0) DEFAULT: Downloads all result
-                            groups if not provided. (default: None).
-    
+    -g {statistics,sequence_data,functional_analysis,taxonomic_analysis,taxonomic_analysis_ssu_rrna,taxonomic_analysis_lsu_rrna,non-coding_rnas,taxonomic_analysis_itsonedb,taxonomic_analysis_unite,taxonomic_analysis_motupathways_and_systems}, --result_group {statistics,sequence_data,functional_analysis,taxonomic_analysis,taxonomic_analysis_ssu_rrna,taxonomic_analysis_lsu_rrna,non-coding_rnas,taxonomic_analysis_itsonedb,taxonomic_analysis_unite,taxonomic_analysis_motupathways_and_systems}
+                            Provide a single result group if needed.
+                            Supported result groups are:
+                            - statistics
+                            - sequence_data (all versions)
+                            - functional_analysis (all versions)
+                            - taxonomic_analysis (1.0-3.0)
+                            - taxonomic_analysis_ssu_rrna (>=4.0)
+                            - taxonomic_analysis_lsu_rrna (>=4.0)
+                            - non-coding_rnas (>=4.0)
+                            - taxonomic_analysis_itsonedb (>= 5.0)
+                            - taxonomic_analysis_unite (>= 5.0)
+                            - taxonomic_analysis_motu  (>= 5.0)
+                            - pathways_and_systems (>= 5.0)
+                            DEFAULT: Downloads all result groups if not provided.
+                            (default: None).
+
+
 How to download all files for a given study accession?
-    
+
     $ mg-toolkit -d bulk_download -a ERP009703
-    
+
 How to download results of a specific version for given study accession?
-    
+
     $ mg-toolkit -d bulk_download -a ERP009703 -v 4.0
-    
-How to download specific result file groups (e.g. functional annotations only) for given study accession?
-    
-    $ mg-toolkit -d bulk_download -a ERP009703 -g functional_annotations
+
+How to download specific result file groups (e.g. functional analysis only) for given study accession?
+
+    $ mg-toolkit -d bulk_download -a ERP009703 -g functional_analysis
