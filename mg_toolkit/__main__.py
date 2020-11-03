@@ -260,7 +260,8 @@ def main():
             "non-coding_rnas",
             "taxonomic_analysis_itsonedb",
             "taxonomic_analysis_unite",
-            "taxonomic_analysis_motu" "pathways_and_systems",
+            "taxonomic_analysis_motu",
+            "pathways_and_systems",
         ],
         help="\n".join(
             [
