@@ -257,46 +257,64 @@ class BulkDownloader:
         logging.info("Process " + str(total_results_processed) + " results.")
         print("\n Download complete!")
 
+    def _process_download_page(self, analysis, download_response):
+        """Process all the pages from the downloads section.
+        This will follow the next link.
+        """
+        analysis_job_id = analysis["id"]
+        analysis_attr = analysis["attributes"]
+        experiment_type = analysis_attr["experiment-type"]
+        pipeline_version = analysis_attr["pipeline-version"]
+
+        if not download_response.ok:
+            logger.error(
+                "Error getting the accession download files. Accession %s"
+                % analysis_job_id
+            )
+            logger.error("Skipping...")
+        else:
+            response_json = download_response.json()
+            downloads = response_json.get("data", [])
+            for download in downloads:
+                download_attr = download["attributes"]
+                alias = download_attr["alias"]
+                group_type = download_attr["group-type"]
+                desc_label = download_attr["description"]["label"]
+                download_url = download["links"]["self"]
+                self.download_file(
+                    download_group_type_key=group_type,
+                    description_label=desc_label,
+                    experiment_type=experiment_type,
+                    result_group=self.result_group,
+                    pipeline_version=pipeline_version,
+                    file_name=alias,
+                    download_url=download_url,
+                    project_id=self.project_id,
+                    dest_dir=self.output_path,
+                )
+            next_page_url = response_json.get("links", {}).get("next")
+            if next_page_url:
+                next_page_respose = self.http.get(
+                    next_page_url,
+                    headers=self.headers,
+                )
+                self._process_download_page(analysis, next_page_respose)
+
     def process_page(self, response_data, progress_bar):
         """Process an analysis returned page"""
-        analyses = response_data["data"]
+        analyses = response_data.get("data", [])
         processed_counter = 0
         for analysis in tqdm(analyses):
+
             analysis_job_id = analysis["id"]
-            analysis_attr = analysis["attributes"]
-            experiment_type = analysis_attr["experiment-type"]
-            pipeline_version = analysis_attr["pipeline-version"]
 
             download_response = self.http.get(
                 MG_ANALYSES_DOWNLOADS_URL.format(**{"accession": analysis_job_id}),
                 headers=self.headers,
             )
 
-            if not download_response.ok:
-                logger.error(
-                    "Error getting the accession download files. Accession %s"
-                    % analysis_job_id
-                )
-                logger.error("Skipping...")
-            else:
-                downloads = download_response.json()["data"]
-                for download in downloads:
-                    download_attr = download["attributes"]
-                    alias = download_attr["alias"]
-                    group_type = download_attr["group-type"]
-                    desc_label = download_attr["description"]["label"]
-                    download_url = download["links"]["self"]
-                    self.download_file(
-                        download_group_type_key=group_type,
-                        description_label=desc_label,
-                        experiment_type=experiment_type,
-                        result_group=self.result_group,
-                        pipeline_version=pipeline_version,
-                        file_name=alias,
-                        download_url=download_url,
-                        project_id=self.project_id,
-                        dest_dir=self.output_path,
-                    )
+            self._process_download_page(analysis, download_response)
+
             processed_counter += 1
             progress_bar.update(1)
 
