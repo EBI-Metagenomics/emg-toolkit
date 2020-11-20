@@ -226,7 +226,7 @@ class BulkDownloader:
 
             while total_results_processed < num_results:
 
-                num_results_processed += self.process_page(response_data, progress_bar)
+                num_results_processed = self.process_page(response_data, progress_bar)
                 total_results_processed += num_results_processed
 
                 # navigate to the next link
