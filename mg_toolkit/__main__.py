@@ -77,6 +77,12 @@ def main():
         help="Provide path to fasta file.",
     )
     sequence_search_parser.add_argument(
+        "-out",
+        "--output",
+        required=True,
+        help="Path to write search results.",
+    )
+    sequence_search_parser.add_argument(
         "-db",
         "--database",
         type=str,

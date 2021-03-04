@@ -17,6 +17,7 @@
 import logging
 import requests
 import html
+import os
 from pandas import DataFrame
 
 from .constants import (
@@ -27,19 +28,42 @@ from .constants import (
 
 
 logger = logging.getLogger(__name__)
+def parse_fasta_file(file_path):
+    """ Parse fasta file """
+    sequences = []
+    first_seq = True
+    with open(file_path, 'r') as f:
+        for line in f:
+            if line[0] == '>':
+                if not first_seq:
+                    sequences.append((query_id, sequence))
+                query_id = line[1:]
+                query_id = query_id.split()[0]
+                sequence = ""
+                first_seq = False
+            else:
+                sequence += line.strip()
 
+    # Add the last sequence
+    sequences.append((query_id, sequence))
+    return sequences
 
 def sequence_search(args):
-
     """
     Process given fasta file
     """
     args = vars(args)
+    out_df = DataFrame()
     for s in args.pop("sequence"):
-        with open(s) as f:
-            sequence = f.read()
+        sequences = parse_fasta_file(s)
+        for sequence_data in sequences:
+            query_id = sequence_data[0]
+            sequence = sequence_data[1]
+            print("Proccessing: {}".format(query_id))
+            # Search MgnifyDB
             seq = SequenceSearch(
                 sequence,
+                query_id,
                 database=args.pop("database", "full"),
                 seq_evalue_threshold=args.pop("seq_evalue_threshold", None),
                 hit_evalue_threshold=args.pop("hit_evalue_threshold", None),
@@ -59,9 +83,15 @@ def sequence_search(args):
                 ),
             )
             results = seq.analyse_sequence()
-            job_uuid = results["results"]["uuid"]
-            logger.debug("Job %s" % job_uuid)
-            seq.save_to_csv(seq.fetch_results(results), filename=job_uuid)
+            # Only process results when the request returned data
+            if results:
+                job_uuid = results["results"]["uuid"]
+                logger.debug("Job %s" % job_uuid)
+                out_df = out_df.append(seq.results_to_df(seq.fetch_results(results), job_uuid))
+            else:
+                logger.debug("No results to report for %s" % query_id)
+
+    out_df.to_csv(args["output"], index=False)
 
 
 class SequenceSearch(object):
@@ -74,8 +104,9 @@ class SequenceSearch(object):
     sequence = None
     database = "full"
 
-    def __init__(self, sequence, database="full", *args, **kwargs):
+    def __init__(self, sequence, query_id, database="full", *args, **kwargs):
         self.sequence = sequence
+        self.query_id = query_id
         self.database = database
         self.seq_evalue_threshold = kwargs.pop("seq_evalue_threshold", None)
         self.hit_evalue_threshold = kwargs.pop("hit_evalue_threshold", None)
@@ -121,7 +152,12 @@ class SequenceSearch(object):
             "Content-Type": "application/x-www-form-urlencoded",
         }
         logger.debug("POST: %r" % data)
-        return requests.post(MG_SEQ_URL, data=data, headers=headers).json()
+        request_data = requests.post(MG_SEQ_URL, data=data, headers=headers)
+        # Check if data was returned
+        if request_data:
+            return request_data.json()
+        else:
+            return False
 
     def make_request(self, accession):
         if accession is None:
@@ -184,7 +220,6 @@ class SequenceSearch(object):
         return {
             "kg": hit.get("kg", ""),
             "taxid": hit.get("taxid", ""),
-            "name": hit.get("name", ""),
             "desc": hit.get("desc", ""),
             "pvalue": hit.get("pvalue", ""),
             "species": hit.get("species", ""),
@@ -219,9 +254,31 @@ class SequenceSearch(object):
                 csv_rows[uuid].update(_meta)
         return csv_rows
 
-    def save_to_csv(self, csv_rows, filename):
+    def clean_column_names(self, df):
+        return df
+
+    def results_to_df(self, csv_rows, uuid):
+        """ Convert search results to dataframe """
         df = DataFrame(csv_rows).T
-        df.index.name = "name"
-        df = df.reindex(columns=sorted(df.columns))
-        filename = "{}_sequence_search.csv".format(filename)
-        df.to_csv(filename)
+        df.reset_index(inplace=True)
+        df.rename(columns={'index':'name'}, inplace=True)
+        # Split index to subject_id and accession
+        df[['subject_id', 'accession']] = df['name'].str.split(' ', 1, expand=True)
+
+        # Put query_id, subject_id, and accession as first three columns
+        subject_id = df.subject_id
+        accession = df.accession
+        df.drop(['name', 'subject_id', 'accession'], axis=1, inplace=True)
+        df.insert(0, 'query_id', self.query_id)
+        df.insert(1, 'subject_id', subject_id)
+        df.insert(1, 'accession', accession)
+
+        # Clean columns from (),\
+        columns = df.columns.to_list()
+        new_columns = [c.replace('(','').replace(')','').replace('/','_').replace(',','_') for c in columns]
+        column_names_map = {}
+        for i, c in enumerate(columns):
+            column_names_map[c] = new_columns[i]
+        df.rename(columns=column_names_map, inplace=True)
+
+        return df
