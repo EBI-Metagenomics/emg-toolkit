@@ -7,9 +7,13 @@ metadata for a given study or sequence to a single csv file.
 
 Install metagenomics toolkit
 ============================
+Through pip
 
     pip install -U mg-toolkit
 
+Or using conda
+
+    conda install -c bioconda mg-toolkit
 
 Usage
 =====
@@ -43,7 +47,7 @@ Download metadata:
 
 Search non-redundant protein database using HMMER and fetch metadata:
 
-    $ mg-toolkit sequence_search -seq test.fasta -db full evalue -incE 0.02
+    $ mg-toolkit sequence_search -seq test.fasta -out test.csv -db full evalue -incE 0.02
 
     Databases:
     - full - Full length sequences (default)
