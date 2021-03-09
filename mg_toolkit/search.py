@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 EMBL - European Bioinformatics Institute
+# Copyright 2021 EMBL - European Bioinformatics Institute
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 import logging
 import requests
 import html
-import os
 from pandas import DataFrame
 
 from .constants import (
@@ -28,25 +27,23 @@ from .constants import (
 
 
 logger = logging.getLogger(__name__)
-def parse_fasta_file(file_path):
-    """ Parse fasta file """
-    sequences = []
-    first_seq = True
-    with open(file_path, 'r') as f:
-        for line in f:
-            if line[0] == '>':
-                if not first_seq:
-                    sequences.append((query_id, sequence))
-                query_id = line[1:]
-                query_id = query_id.split()[0]
-                sequence = ""
-                first_seq = False
-            else:
-                sequence += line.strip()
 
-    # Add the last sequence
-    sequences.append((query_id, sequence))
+
+def parse_fasta_file(file_path):
+    """
+    Parse fasta file
+    """
+    sequences = {}
+    query_id = None
+    with open(file_path, "r") as f:
+        for line in f:
+            if line.startswith(">"):
+                query_id = line[1:].strip()
+                sequences[query_id] = ""
+            else:
+                sequences[query_id] += line.strip()
     return sequences
+
 
 def sequence_search(args):
     """
@@ -56,7 +53,7 @@ def sequence_search(args):
     out_df = DataFrame()
     for s in args.pop("sequence"):
         sequences = parse_fasta_file(s)
-        for sequence_data in sequences:
+        for sequence_data in sequences.items():
             query_id = sequence_data[0]
             sequence = sequence_data[1]
             print("Proccessing: {}".format(query_id))
@@ -82,20 +79,29 @@ def sequence_search(args):
                     "report_hit_bitscore_threshold", None
                 ),
             )
-            results = seq.analyse_sequence()
+            response = seq.analyse_sequence()
+            if not response:
+                logger.warning("No results to report for %s" % query_id)
+                return
             # Only process results when the request returned data
+            results = response.get("results")
             if results:
-                job_uuid = results["results"]["uuid"]
+                job_uuid = results["uuid"]
                 logger.debug("Job %s" % job_uuid)
-                out_df = out_df.append(seq.results_to_df(seq.fetch_results(results), job_uuid))
+                out_df = out_df.append(
+                    seq.results_to_df(seq.fetch_results(results), job_uuid)
+                )
             else:
-                logger.debug("No results to report for %s" % query_id)
+                logger.warning("No results to report for %s" % query_id)
 
-    out_df.to_csv(args["output"], index=False)
+    output_file = job_uuid + "_sequence_search.csv"
+    if args["output"]:
+        output_file = args["output"]
+
+    out_df.to_csv(output_file, index=False)
 
 
 class SequenceSearch(object):
-
     """
     Helper tool allowing to search non-redundant protein database using HMMER
     and fetch environmental metadata.
@@ -230,8 +236,12 @@ class SequenceSearch(object):
         }
 
     def fetch_results(self, results):
+        """
+        Complete the HMMER hits with MGnify metadata from the API
+        TODO: This could be parallelized for better performance
+        """
         csv_rows = dict()
-        for hit in results["results"]["hits"]:
+        for hit in results.get("hits", []):
             _row = self.prepare_rows(hit)
             mgnify = hit.get("mgnify", [])
             for res in mgnify.get("samples") or []:
@@ -254,31 +264,34 @@ class SequenceSearch(object):
                 csv_rows[uuid].update(_meta)
         return csv_rows
 
-    def clean_column_names(self, df):
-        return df
-
     def results_to_df(self, csv_rows, uuid):
-        """ Convert search results to dataframe """
+        """
+        Convert search results to dataframe
+        """
+
         df = DataFrame(csv_rows).T
         df.reset_index(inplace=True)
-        df.rename(columns={'index':'name'}, inplace=True)
+        df.rename(columns={"index": "name"}, inplace=True)
         # Split index to subject_id and accession
-        df[['subject_id', 'accession']] = df['name'].str.split(' ', 1, expand=True)
+        df[["subject_id", "accession"]] = df["name"].str.split(" ", 1, expand=True)
 
         # Put query_id, subject_id, and accession as first three columns
         subject_id = df.subject_id
         accession = df.accession
-        df.drop(['name', 'subject_id', 'accession'], axis=1, inplace=True)
-        df.insert(0, 'query_id', self.query_id)
-        df.insert(1, 'subject_id', subject_id)
-        df.insert(1, 'accession', accession)
+        df.drop(["name", "subject_id", "accession"], axis=1, inplace=True)
+        df.insert(0, "query_id", self.query_id)
+        df.insert(1, "subject_id", subject_id)
+        df.insert(1, "accession", accession)
+
+        def _clean_column(col):
+            return (
+                col.replace(")", "")
+                .replace("(", "")
+                .replace("/", "_")
+                .replace(",", "_")
+            )
 
         # Clean columns from (),\
-        columns = df.columns.to_list()
-        new_columns = [c.replace('(','').replace(')','').replace('/','_').replace(',','_') for c in columns]
-        column_names_map = {}
-        for i, c in enumerate(columns):
-            column_names_map[c] = new_columns[i]
-        df.rename(columns=column_names_map, inplace=True)
+        df.rename(_clean_column, axis="columns", inplace=True)
 
         return df

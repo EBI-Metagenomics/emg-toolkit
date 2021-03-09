@@ -79,8 +79,8 @@ def main():
     sequence_search_parser.add_argument(
         "-out",
         "--output",
-        required=True,
-        help="Path to write search results.",
+        required=False,
+        help="Output csv results file (default: <query_id>_sequence_search.csv",
     )
     sequence_search_parser.add_argument(
         "-db",

@@ -2,7 +2,17 @@
 
 set -e
 
+echo "Unit tests"
+
+python -m unittest discover unit -v
+
+echo "------------------------"
+
+echo "Integration"
+
 echo "Testing original_metadata"
+
+cd integration
 
 set -x
 mg-toolkit -d original_metadata -a ERP001178
