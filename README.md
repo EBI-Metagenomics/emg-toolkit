@@ -7,9 +7,13 @@ metadata for a given study or sequence to a single csv file.
 
 Install metagenomics toolkit
 ============================
+Through pip
 
     pip install -U mg-toolkit
 
+Or using conda
+
+    conda install -c bioconda mg-toolkit
 
 Usage
 =====
@@ -43,7 +47,7 @@ Download metadata:
 
 Search non-redundant protein database using HMMER and fetch metadata:
 
-    $ mg-toolkit sequence_search -seq test.fasta -db full evalue -incE 0.02
+    $ mg-toolkit sequence_search -seq test.fasta -out test.csv -db full evalue -incE 0.02
 
     Databases:
     - full - Full length sequences (default)
@@ -115,6 +119,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://github.com/olatarkowska"><img src="https://avatars3.githubusercontent.com/u/1065155?v=4" width="100px;" alt=""/><br /><sub><b>Ola Tarkowska</b></sub></a><br /><a href="https://github.com/EBI-Metagenomics/emg-toolkit/commits?author=olatarkowska" title="Code">💻</a><a href="https://github.com/EBI-Metagenomics/EMG-docs/commits/master?author=olatarkowska">📖</a></td>
     <td align="center"><a href="https://github.com/mscheremetjew"><img src="https://avatars3.githubusercontent.com/u/1681284?v=4" width="100px;" alt=""/><br /><sub><b>Maxim Scheremetjew</b></sub></a><br /><a href="https://github.com/EBI-Metagenomics/emg-toolkit/commits?author=mscheremetjew" title="Code">💻</a><a href="https://github.com/EBI-Metagenomics/EMG-docs/commits/master?author=mscheremetjew">📖</a></td>
     <td align="center"><a href="https://github.com/mberacochea"><img src="https://avatars3.githubusercontent.com/u/1123897?v=4" width="100px;" alt=""/><br /><sub><b>Martin Beracochea</b></sub></a><br /><a href="https://github.com/EBI-Metagenomics/emg-toolkit/commits?author=mberacochea" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/emilhaegglund"><img src="https://avatars.githubusercontent.com/u/15671004?s=400&u=1715b96c4879b924eab88f48461ffd9f40e9d37a&v=4" width="100px;" alt=""/><br /><sub><b>Emil Hägglund</b></sub></a><br /><a href="https://github.com/EBI-Metagenomics/emg-toolkit/commits?author=emilhaegglund" title="Code">💻</a></td>
   </tr>
 </table>
 
