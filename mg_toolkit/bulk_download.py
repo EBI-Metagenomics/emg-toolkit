@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 EMBL - European Bioinformatics Institute
+# Copyright 2021 EMBL - European Bioinformatics Institute
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 import logging
 import os
 import platform
+import csv
 from pathlib import Path
 
 from requests.adapters import HTTPAdapter
@@ -292,6 +293,9 @@ class BulkDownloader:
                     project_id=self.project_id,
                     dest_dir=self.output_path,
                 )
+            # store the metadata for the analysis
+            self.store_metadata(analysis, response_json)
+
             next_page_url = response_json.get("links", {}).get("next")
             if next_page_url:
                 next_page_respose = self.http.get(
@@ -319,3 +323,65 @@ class BulkDownloader:
             progress_bar.update(1)
 
         return processed_counter
+
+    def store_metadata(self, analysis, response_json):
+        """
+        Store the API response json in a tsv file called <analysis>_metadata.tsv
+        This file can be used to make it easier to interpret the downloaded files.
+        """
+        metadata_file_name = "{}_metadata.tsv".format(self.project_id)
+        output_file = os.path.join(
+            self.output_path, self.project_id, metadata_file_name
+        )
+        mode = "a" if os.path.exists(output_file) else "w"
+        experyment_type = analysis.get("attributes").get("experiment-type")
+
+        col_names = [
+            "analysis_id",
+            "name",
+            "group_type",
+            "description",
+            "download_url",
+            "pipeline_version",
+            "experiment_type",
+            # TODO: enable when released for the pipeline
+            # "checksum",
+            # "checksum_algorithm",
+        ]
+
+        with open(output_file, mode) as metada_fd:
+            writer = csv.writer(metada_fd, delimiter="\t")
+            if mode == "w":
+                writer.writerow(col_names)
+
+            for entry in response_json.get("data", []):
+                download_attr = entry.get("attributes")
+                alias = download_attr.get("alias")
+                group_type = download_attr.get("group-type")
+                desc_label = download_attr.get("description").get("label")
+
+                download_url = entry.get("links").get("self")
+
+                pipeline_version = (
+                    entry.get("relationships").get("pipeline").get("data").get("id")
+                )
+
+                # TODO: enable when released for the pipeline
+                # checksum = download_attr.get("file-checksum").get("checksum")
+                # checksum_algorithm = download_attr.get("file-checksum").get(
+                #     "checksum-algorithm"
+                # )
+
+                writer.writerow(
+                    [
+                        analysis["id"],
+                        alias,
+                        group_type,
+                        desc_label,
+                        download_url,
+                        pipeline_version,
+                        experyment_type,
+                        # checksum,
+                        # checksum_algorithm,
+                    ]
+                )
