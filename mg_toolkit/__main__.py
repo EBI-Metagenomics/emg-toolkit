@@ -77,6 +77,12 @@ def main():
         help="Provide path to fasta file.",
     )
     sequence_search_parser.add_argument(
+        "-out",
+        "--output",
+        required=False,
+        help="Output csv results file (default: <query_id>_sequence_search.csv",
+    )
+    sequence_search_parser.add_argument(
         "-db",
         "--database",
         type=str,
