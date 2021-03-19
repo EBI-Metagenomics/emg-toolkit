@@ -20,4 +20,4 @@ from mg_toolkit.bulk_download import bulk_download
 
 __all__ = ["original_metadata", "sequence_search", "bulk_download"]
 
-__version__ = "0.9.1"
+__version__ = "0.10.0"
