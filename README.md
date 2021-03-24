@@ -106,6 +106,8 @@ How to download specific result file groups (e.g. functional analysis only) for 
     $ mg-toolkit -d bulk_download -a ERP009703 -g functional_analysis
 
 
+The bulk uploader will store a .tsv file with all the metadata for each downloaded file.
+
 Contributors
 ============
 
