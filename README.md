@@ -106,6 +106,24 @@ How to download specific result file groups (e.g. functional analysis only) for 
     $ mg-toolkit -d bulk_download -a ERP009703 -g functional_analysis
 
 
+The bulk uploader will store a .tsv file with all the metadata for each downloaded file.
+
+
+Usage as a python package
+=========================
+
+⚠️ Liable to change ⚠️ 
+
+Whilst `mg_toolkit` is designed as a command-line tool, it is a set of python modules with helper classes that could be useful in your own python scripts. These internal APIs and call signatures may change over time. See [main()](mg_toolkit/__main__.py) for default arguments.
+
+#### Example
+
+```python
+from mg_toolkit.metadata import OriginalMetadata
+erp001736 = OriginalMetadata('ERP001736')
+erp001736.fetch_metadata()
+```
+
 Contributors
 ============
 

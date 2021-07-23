@@ -28,11 +28,12 @@ mg-toolkit -d bulk_download -a MGYS00002478
 set +x
 
 md5sum -c bulk_download/ERR169332.5_8S_rRNA.RF00002.fa.md5
+md5sum -c bulk_download/MGYS00002478_metadata.tsv.md5
 rm -r MGYS00002478
 
 echo "Testing sequence_search"
 
-set -x  
+set -x
 mg-toolkit -d sequence_search --sequence sequence_search/test.fasta -db full evalue -E 1.1e-240 -domE 0.01 -incE 1.1e-240 -incdomE 0.01
 set +x
 
