@@ -3,3 +3,4 @@
 # run pip install -r requirements-test
 
 flake8~=3.8.3
+wheel~=0.36.2

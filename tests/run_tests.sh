@@ -33,7 +33,7 @@ rm -r MGYS00002478
 
 echo "Testing sequence_search"
 
-set -x  
+set -x
 mg-toolkit -d sequence_search --sequence sequence_search/test.fasta -db full evalue -E 1.1e-240 -domE 0.01 -incE 1.1e-240 -incdomE 0.01
 set +x
 
