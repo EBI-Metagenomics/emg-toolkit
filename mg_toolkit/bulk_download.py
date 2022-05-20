@@ -69,7 +69,7 @@ class BulkDownloader:
         self.result_group = result_group
         self._init_program()
         self.headers = {
-            "Accept": "application/vnd.api+json",
+            "Accept": "application/json",
         }
         # http session
         retry_strategy = Retry(
@@ -210,7 +210,7 @@ class BulkDownloader:
         )
 
         if not response.ok:
-            logger.error("Failed to get the project %s from the API" & project_id)
+            logger.error("Failed to get the project %s from the API" % project_id)
             logger.error("Error: %s" % response.status_code)
             return
 
