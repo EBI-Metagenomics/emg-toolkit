@@ -78,11 +78,7 @@ class OriginalMetadata:
 
             key = tag.text.strip()
             key_value = None
-            if not value:
-                key_value = ""
-            else:
-                key_value = value.text.strip() if value.text else ""
-
+            key_value = value.text.strip() if value and value.text else ""
             if units and units.text:
                 key_value += units.text.strip()
 
