@@ -14,17 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
-import requests
 import html
+import logging
+
+import pandas as pd
+import requests
 from pandas import DataFrame
 
-from .constants import (
-    MG_SEQ_URL,
-    MG_SAMPLE_URL,
-    MG_RUN_URL,
-)
-
+from .constants import MG_RUN_URL, MG_SAMPLE_URL, MG_SEQ_URL
 
 logger = logging.getLogger(__name__)
 
@@ -88,8 +85,8 @@ def sequence_search(args):
             if results:
                 job_uuid = results["uuid"]
                 logger.debug("Job %s" % job_uuid)
-                out_df = out_df.append(
-                    seq.results_to_df(seq.fetch_results(results), job_uuid)
+                out_df = pd.concat(
+                    [out_df, seq.results_to_df(seq.fetch_results(results), job_uuid)]
                 )
             else:
                 logger.warning("No results to report for %s" % query_id)
