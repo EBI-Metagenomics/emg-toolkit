@@ -32,6 +32,9 @@ mg-toolkit -d bulk_download -a MGYS00002478 -p 4.1 -g non-coding_rnas
 sort -o MGYS00002478/MGYS00002478_metadata.tsv MGYS00002478/MGYS00002478_metadata.tsv
 set +x
 
+cat MGYS00002478/MGYS00002478_metadata.tsv
+md5sum MGYS00002478/MGYS00002478_metadata.tsv
+
 md5sum -c bulk_download/ERR169332.5_8S_rRNA.RF00002.fa.md5
 md5sum -c bulk_download/MGYS00002478_metadata.tsv.md5
 rm -r MGYS00002478
