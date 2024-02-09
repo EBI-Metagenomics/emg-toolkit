@@ -18,7 +18,6 @@ import logging
 import xml.etree.ElementTree as ET
 
 import requests
-
 from pandas import DataFrame
 
 from .constants import ENA_SEARCH_API_URL, ENA_XML_VIEW_URL
@@ -33,7 +32,6 @@ logger = logging.getLogger(__name__)
 
 
 def original_metadata(args):
-
     """
     Process given accessions
     """
@@ -150,7 +148,7 @@ class OriginalMetadata:
         _sample = None
         _meta = None
 
-        for (run, sample) in _accessions.items():
+        for run, sample in _accessions.items():
             if sample != _sample:
                 _meta = self.get_metadata(sample["sample_accession"])
             meta_csv[run] = _meta

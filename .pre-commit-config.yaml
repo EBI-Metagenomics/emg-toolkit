@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.2.0
+    rev: v4.5.0
     hooks:
       - id: trailing-whitespace
         exclude: '^tests/*|.bumpversion.cfg'
@@ -10,13 +10,16 @@ repos:
       - id: check-added-large-files
       - id: check-merge-conflict
   - repo: https://github.com/psf/black
-    rev: 20.8b1
+    rev: 24.1.1
     hooks:
       - id: black
-        language: python
-        language_version: python3
-  - repo: https://gitlab.com/pycqa/flake8
-    rev: "3.8.3"
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
     hooks:
-      - id: flake8
-        language: python
+      - id: isort
+        name: isort (python)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.2.1
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix, --show-fixes]

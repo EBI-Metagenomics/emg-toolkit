@@ -14,10 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
 import os
+import sys
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 _base = os.path.dirname(os.path.abspath(__file__))
 _requirements = os.path.join(_base, "requirements.txt")
@@ -44,7 +44,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=find_packages(exclude=["ez_setup"]),
-    version="0.10.0",
+    version="0.10.2",
     python_requires=">=3.5",
     install_requires=install_requirements,
     setup_requires=["pytest-runner"],
