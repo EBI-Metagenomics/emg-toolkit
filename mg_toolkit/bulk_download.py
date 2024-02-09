@@ -330,9 +330,10 @@ class BulkDownloader:
         This file can be used to make it easier to interpret the downloaded files.
         """
         metadata_file_name = "{}_metadata.tsv".format(self.project_id)
-        output_file = os.path.join(
-            self.output_path, self.project_id, metadata_file_name
-        )
+
+        directory = os.path.join(self.output_path, self.project_id)
+        os.makedirs(directory, exist_ok=True)
+        output_file = os.path.join(directory, metadata_file_name)
         mode = "a" if os.path.exists(output_file) else "w"
         experyment_type = analysis.get("attributes").get("experiment-type")
 

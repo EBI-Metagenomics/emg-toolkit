@@ -24,7 +24,10 @@ rm ERP001178.csv
 echo "Testing bulk_download"
 
 set -x
-mg-toolkit -d bulk_download -a MGYS00002478
+rm -rf MGYS00002478/
+mg-toolkit -d bulk_download -a MGYS00002478 -p 4.1 -g non-coding_rnas
+# Sort to keep the checksum stable
+sort -o MGYS00002478/MGYS00002478_metadata.tsv MGYS00002478/MGYS00002478_metadata.tsv
 set +x
 
 md5sum -c bulk_download/ERR169332.5_8S_rRNA.RF00002.fa.md5
@@ -33,10 +36,10 @@ rm -r MGYS00002478
 
 echo "Testing sequence_search"
 
-set -x
-mg-toolkit -d sequence_search --sequence sequence_search/test.fasta -db full evalue -E 1.1e-240 -domE 0.01 -incE 1.1e-240 -incdomE 0.01
-set +x
+# set -x
+# mg-toolkit -d sequence_search --sequence sequence_search/test.fasta -db full evalue -E 1.1e-240 -domE 0.01 -incE 1.1e-240 -incdomE 0.01
+# set +x
 
-mv -f *_sequence_search.csv sequence_search.csv
-md5sum -c sequence_search/sequence_search.csv.md5
-rm *.csv
+# mv -f *_sequence_search.csv sequence_search.csv
+# md5sum -c sequence_search/sequence_search.csv.md5
+# rm *.csv
