@@ -18,6 +18,8 @@ set -x
 mg-toolkit -d original_metadata -a ERP001178
 set +x
 
+echo ERP001178.csv
+md5sum ERP001178.csv
 md5sum -c original_metadata/ERP001178.csv.md5
 rm ERP001178.csv
 
