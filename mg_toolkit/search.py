@@ -270,7 +270,7 @@ class SequenceSearch(object):
         df.reset_index(inplace=True)
         df.rename(columns={"index": "name"}, inplace=True)
         # Split index to subject_id and accession
-        df[["subject_id", "accession"]] = df["name"].str.split(" ", 1, expand=True)
+        df[["subject_id", "accession"]] = df["name"].str.split(" ", n=1, expand=True)
 
         # Put query_id, subject_id, and accession as first three columns
         subject_id = df.subject_id

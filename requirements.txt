@@ -3,6 +3,6 @@
 # run pip install -r requirements
 
 requests>=2.24.0
-pandas>=0.25.3
+pandas==2.2.0
 jsonapi-client>=0.9.9
 tqdm>=4.49.0
