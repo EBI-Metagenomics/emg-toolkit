@@ -18,8 +18,6 @@ set -x
 mg-toolkit -d original_metadata -a ERP001178
 set +x
 
-cat ERP001178.csv
-md5sum ERP001178.csv
 md5sum -c original_metadata/ERP001178.csv.md5
 rm ERP001178.csv
 
@@ -28,12 +26,7 @@ echo "Testing bulk_download"
 set -x
 rm -rf MGYS00002478/
 mg-toolkit -d bulk_download -a MGYS00002478 -p 4.1 -g non-coding_rnas
-# Sort to keep the checksum stable
-sort -o MGYS00002478/MGYS00002478_metadata.tsv MGYS00002478/MGYS00002478_metadata.tsv
 set +x
-
-cat MGYS00002478/MGYS00002478_metadata.tsv
-md5sum MGYS00002478/MGYS00002478_metadata.tsv
 
 md5sum -c bulk_download/ERR169332.5_8S_rRNA.RF00002.fa.md5
 md5sum -c bulk_download/MGYS00002478_metadata.tsv.md5

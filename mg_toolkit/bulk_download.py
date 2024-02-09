@@ -354,15 +354,13 @@ class BulkDownloader:
             writer = csv.writer(metada_fd, delimiter="\t")
             if mode == "w":
                 writer.writerow(col_names)
-
+            rows = []
             for entry in response_json.get("data", []):
                 download_attr = entry.get("attributes")
                 alias = download_attr.get("alias")
                 group_type = download_attr.get("group-type")
                 desc_label = download_attr.get("description").get("label")
-
                 download_url = entry.get("links").get("self")
-
                 pipeline_version = (
                     entry.get("relationships").get("pipeline").get("data").get("id")
                 )
@@ -373,7 +371,7 @@ class BulkDownloader:
                 #     "checksum-algorithm"
                 # )
 
-                writer.writerow(
+                rows.append(
                     [
                         analysis["id"],
                         alias,
@@ -386,3 +384,4 @@ class BulkDownloader:
                         # checksum_algorithm,
                     ]
                 )
+            writer.writerows(sorted(rows))
