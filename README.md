@@ -112,7 +112,7 @@ The bulk uploader will store a .tsv file with all the metadata for each download
 Usage as a python package
 =========================
 
-⚠️ Liable to change ⚠️ 
+⚠️ Liable to change ⚠️
 
 Whilst `mg_toolkit` is designed as a command-line tool, it is a set of python modules with helper classes that could be useful in your own python scripts. These internal APIs and call signatures may change over time. See [main()](mg_toolkit/__main__.py) for default arguments.
 
@@ -138,6 +138,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://github.com/mscheremetjew"><img src="https://avatars3.githubusercontent.com/u/1681284?v=4" width="100px;" alt=""/><br /><sub><b>Maxim Scheremetjew</b></sub></a><br /><a href="https://github.com/EBI-Metagenomics/emg-toolkit/commits?author=mscheremetjew" title="Code">💻</a><a href="https://github.com/EBI-Metagenomics/EMG-docs/commits/master?author=mscheremetjew">📖</a></td>
     <td align="center"><a href="https://github.com/mberacochea"><img src="https://avatars3.githubusercontent.com/u/1123897?v=4" width="100px;" alt=""/><br /><sub><b>Martin Beracochea</b></sub></a><br /><a href="https://github.com/EBI-Metagenomics/emg-toolkit/commits?author=mberacochea" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/emilhaegglund"><img src="https://avatars.githubusercontent.com/u/15671004?s=400&u=1715b96c4879b924eab88f48461ffd9f40e9d37a&v=4" width="100px;" alt=""/><br /><sub><b>Emil Hägglund</b></sub></a><br /><a href="https://github.com/EBI-Metagenomics/emg-toolkit/commits?author=emilhaegglund" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/SandyRogers"><img src="https://avatars.githubusercontent.com/u/414767?v=4" width="100px;" alt=""/><br /><sub><b>Sandy Rogers</b></sub></a><br /><a href="https://github.com/EBI-Metagenomics/emg-toolkit/commits?author=SandyRogers" title="Code">💻</a></td>
   </tr>
 </table>
 
