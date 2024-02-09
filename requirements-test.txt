@@ -2,5 +2,5 @@
 # install and create a virtual environment
 # run pip install -r requirements-test
 
-flake8~=3.8.3
+ruff==0.2.1
 wheel~=0.36.2

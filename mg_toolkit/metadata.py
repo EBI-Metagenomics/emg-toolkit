@@ -18,7 +18,6 @@ import logging
 import xml.etree.ElementTree as ET
 
 import requests
-
 from pandas import DataFrame
 
 from .constants import ENA_SEARCH_API_URL, ENA_XML_VIEW_URL
@@ -33,7 +32,6 @@ logger = logging.getLogger(__name__)
 
 
 def original_metadata(args):
-
     """
     Process given accessions
     """
@@ -71,17 +69,17 @@ class OriginalMetadata:
         ):
             tag = sample_attribute.find("TAG")
             value = sample_attribute.find("VALUE")
+
             # optional
             units = sample_attribute.find("UNITS")
-            if tag is None:
+            if not tag:
                 # broken metadata but not fatal
                 continue
 
             key = tag.text.strip()
             key_value = None
-            if value is not None:
-                key_value = value.text.strip()
-            if units is not None:
+            key_value = value.text.strip() if value and value.text else ""
+            if units and units.text:
                 key_value += units.text.strip()
 
             return_meta[key] = key_value
@@ -146,7 +144,7 @@ class OriginalMetadata:
         _sample = None
         _meta = None
 
-        for (run, sample) in _accessions.items():
+        for run, sample in _accessions.items():
             if sample != _sample:
                 _meta = self.get_metadata(sample["sample_accession"])
             meta_csv[run] = _meta
@@ -162,4 +160,6 @@ class OriginalMetadata:
         df.index.name = "Run"
         if filename is None:
             filename = "{}.csv".format(self.accession)
+        # Sort the columns
+        df = df.reindex(sorted(df.columns), axis=1)
         df.to_csv(filename)
