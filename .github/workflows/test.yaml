@@ -24,11 +24,11 @@ jobs:
         TARGZ=$(ls dist/mg-toolkit*.tar.gz)
         pip install -U $TARGZ
 
-    - name: 🍦 - Flake
+    - name: 🍦 - Ruff
       continue-on-error: true
       run: |
-        flake8 --version
-        flake8 -v . --config $TRAVIS_BUILD_DIR/tox.ini --show-source --statistics
+        ruff --version
+        ruff check  --statistics --verbose
 
     - name: 🧪 - Testing
       working-directory: tests

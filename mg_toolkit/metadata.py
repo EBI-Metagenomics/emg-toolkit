@@ -160,4 +160,6 @@ class OriginalMetadata:
         df.index.name = "Run"
         if filename is None:
             filename = "{}.csv".format(self.accession)
+        # Sort the columns
+        df = df.reindex(sorted(df.columns), axis=1)
         df.to_csv(filename)
