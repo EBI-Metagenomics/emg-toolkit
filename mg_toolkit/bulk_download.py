@@ -14,15 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import csv
 import logging
 import os
 import platform
-import csv
 from pathlib import Path
 
+from requests import HTTPError, Session
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
-from requests import Session, HTTPError
 from tqdm import tqdm
 
 from .constants import API_BASE, MG_ANALYSES_BASE_URL, MG_ANALYSES_DOWNLOADS_URL
@@ -69,7 +69,7 @@ class BulkDownloader:
         self.result_group = result_group
         self._init_program()
         self.headers = {
-            "Accept": "application/vnd.api+json",
+            "Accept": "application/json",
         }
         # http session
         retry_strategy = Retry(
@@ -210,8 +210,8 @@ class BulkDownloader:
         )
 
         if not response.ok:
-            logger.error("Failed to get the project %s from the API" & project_id)
-            logger.error("Error: %s" % response.status_code)
+            logger.error(f"Failed to get the project {project_id} from the API")
+            logger.error(f"Error: {response.status_code}")
             return
 
         response_data = response.json()
