@@ -71,17 +71,21 @@ class OriginalMetadata:
         ):
             tag = sample_attribute.find("TAG")
             value = sample_attribute.find("VALUE")
+
             # optional
             units = sample_attribute.find("UNITS")
-            if tag is None:
+            if not tag:
                 # broken metadata but not fatal
                 continue
 
             key = tag.text.strip()
             key_value = None
-            if value is not None:
-                key_value = value.text.strip()
-            if units is not None:
+            if not value:
+                key_value = ""
+            else:
+                key_value = value.text.strip() if value.text else ""
+
+            if units and units.text:
                 key_value += units.text.strip()
 
             return_meta[key] = key_value
