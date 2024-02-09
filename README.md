@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/EBI-Metagenomics/emg-toolkit.svg?branch=master)](https://travis-ci.com/EBI-Metagenomics/emg-toolkit) [![PyPi package](https://badge.fury.io/py/mg-toolkit.svg)](https://badge.fury.io/py/mg-toolkit) [![Downloads](http://pepy.tech/badge/mg-toolkit)](http://pepy.tech/project/mg-toolkit)
+![Tests](https://github.com/EBI-Metagenomics/emg-toolkit/actions/workflows/test.yaml/badge.svg) [![PyPi package](https://badge.fury.io/py/mg-toolkit.svg)](https://badge.fury.io/py/mg-toolkit) [![Downloads](http://pepy.tech/badge/mg-toolkit)](http://pepy.tech/project/mg-toolkit)
 
 
 Metagenomics toolkit enables scientists to download all of the sample

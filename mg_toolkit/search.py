@@ -166,7 +166,7 @@ class SequenceSearch(object):
         if accession is None:
             return None
         headers = {
-            "Accept": "application/vnd.api+json",
+            "Accept": "application/json",
         }
         r = requests.get(
             MG_SAMPLE_URL.format(**{"accession": accession}), headers=headers
