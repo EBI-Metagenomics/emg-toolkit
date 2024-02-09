@@ -14,15 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import csv
 import logging
 import os
 import platform
-import csv
 from pathlib import Path
 
+from requests import HTTPError, Session
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
-from requests import Session, HTTPError
 from tqdm import tqdm
 
 from .constants import API_BASE, MG_ANALYSES_BASE_URL, MG_ANALYSES_DOWNLOADS_URL
@@ -69,7 +69,7 @@ class BulkDownloader:
         self.result_group = result_group
         self._init_program()
         self.headers = {
-            "Accept": "application/vnd.api+json",
+            "Accept": "application/json",
         }
         # http session
         retry_strategy = Retry(
@@ -210,8 +210,8 @@ class BulkDownloader:
         )
 
         if not response.ok:
-            logger.error("Failed to get the project %s from the API" & project_id)
-            logger.error("Error: %s" % response.status_code)
+            logger.error(f"Failed to get the project {project_id} from the API")
+            logger.error(f"Error: {response.status_code}")
             return
 
         response_data = response.json()
@@ -330,9 +330,10 @@ class BulkDownloader:
         This file can be used to make it easier to interpret the downloaded files.
         """
         metadata_file_name = "{}_metadata.tsv".format(self.project_id)
-        output_file = os.path.join(
-            self.output_path, self.project_id, metadata_file_name
-        )
+
+        directory = os.path.join(self.output_path, self.project_id)
+        os.makedirs(directory, exist_ok=True)
+        output_file = os.path.join(directory, metadata_file_name)
         mode = "a" if os.path.exists(output_file) else "w"
         experyment_type = analysis.get("attributes").get("experiment-type")
 
@@ -353,15 +354,13 @@ class BulkDownloader:
             writer = csv.writer(metada_fd, delimiter="\t")
             if mode == "w":
                 writer.writerow(col_names)
-
+            rows = []
             for entry in response_json.get("data", []):
                 download_attr = entry.get("attributes")
                 alias = download_attr.get("alias")
                 group_type = download_attr.get("group-type")
                 desc_label = download_attr.get("description").get("label")
-
                 download_url = entry.get("links").get("self")
-
                 pipeline_version = (
                     entry.get("relationships").get("pipeline").get("data").get("id")
                 )
@@ -372,7 +371,7 @@ class BulkDownloader:
                 #     "checksum-algorithm"
                 # )
 
-                writer.writerow(
+                rows.append(
                     [
                         analysis["id"],
                         alias,
@@ -385,3 +384,4 @@ class BulkDownloader:
                         # checksum_algorithm,
                     ]
                 )
+            writer.writerows(sorted(rows))

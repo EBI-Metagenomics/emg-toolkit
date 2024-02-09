@@ -14,10 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
 import os
+import sys
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 _base = os.path.dirname(os.path.abspath(__file__))
 _requirements = os.path.join(_base, "requirements.txt")
@@ -44,8 +44,8 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=find_packages(exclude=["ez_setup"]),
-    version="0.10.0",
-    python_requires=">=3.5",
+    version="0.10.2",
+    python_requires=">=3.8",
     install_requires=install_requirements,
     setup_requires=["pytest-runner"],
     tests_require=test_requirements,
@@ -53,10 +53,9 @@ setup(
     zip_safe=False,
     license="Apache Software License",
     classifiers=[
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
         "Topic :: Scientific/Engineering :: Bio-Informatics",

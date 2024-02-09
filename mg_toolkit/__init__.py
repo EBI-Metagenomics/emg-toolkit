@@ -14,10 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from mg_toolkit.bulk_download import bulk_download
 from mg_toolkit.metadata import original_metadata
 from mg_toolkit.search import sequence_search
-from mg_toolkit.bulk_download import bulk_download
 
 __all__ = ["original_metadata", "sequence_search", "bulk_download"]
 
-__version__ = "0.10.0"
+__version__ = "0.10.2"
