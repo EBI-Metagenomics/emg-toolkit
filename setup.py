@@ -44,7 +44,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=find_packages(exclude=["ez_setup"]),
-    version="0.10.2",
+    version="0.10.3",
     python_requires=">=3.8",
     install_requires=install_requirements,
     setup_requires=["pytest-runner"],
