@@ -28,3 +28,6 @@ MG_ANALYSES_DOWNLOADS_URL = API_BASE + "/analyses/{accession}/downloads"
 
 ENA_SEARCH_API_URL = "https://www.ebi.ac.uk/ena/portal/api/search"
 ENA_XML_VIEW_URL = "https://www.ebi.ac.uk/ena/browser/api/xml"
+
+EBI_URL_PREFIX = "https://www.ebi.ac.uk/"
+REQUESTS_RETRIES = 3
