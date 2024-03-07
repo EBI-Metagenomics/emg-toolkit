@@ -124,6 +124,18 @@ erp001736 = OriginalMetadata('ERP001736')
 erp001736.fetch_metadata()
 ```
 
+
+Development setup
+=================
+Install the package in edit mode, and additional dev requirements (pre-commit hooks and version bumper).
+```shell
+pip install -e . -r requirements-dev.txt
+pre-commit install
+```
+
+You can bump the version with e.g. `bump2version patch`.
+
+
 Contributors
 ============
 

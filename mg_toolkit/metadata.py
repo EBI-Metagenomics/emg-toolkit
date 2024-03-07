@@ -19,8 +19,16 @@ import xml.etree.ElementTree as ET
 
 import requests
 from pandas import DataFrame
+from requests import Session
+from requests.adapters import HTTPAdapter
+from urllib3.util import Retry
 
-from .constants import ENA_SEARCH_API_URL, ENA_XML_VIEW_URL
+from .constants import (
+    EBI_URL_PREFIX,
+    ENA_SEARCH_API_URL,
+    ENA_XML_VIEW_URL,
+    REQUESTS_RETRIES,
+)
 
 try:
     from json.decoder import JSONDecodeError
@@ -48,18 +56,29 @@ class OriginalMetadata:
     """
 
     accession = None
+    session = None
 
     def __init__(self, accession, *args, **kwargs):
         self.accession = accession
+
+        self.session = Session()
+        retries = Retry(
+            total=REQUESTS_RETRIES,
+            backoff_factor=0.1,
+            status_forcelist=[500, 502, 503, 504],
+        )
+        self.session.mount(EBI_URL_PREFIX, HTTPAdapter(max_retries=retries))
 
     def get_metadata(self, sample_accession):
         """Get the sample metadata from ENA API."""
         return_meta = {}
 
-        response = requests.get(ENA_XML_VIEW_URL + "/" + sample_accession)
+        response = self.session.get(ENA_XML_VIEW_URL + "/" + sample_accession)
 
         if not response.ok:
-            logger.error("Metadata fetch failed for accession:" + self.accession)
+            logger.error(
+                "Metadata fetch failed for sample accession: " + sample_accession
+            )
             return
 
         metadata_xml = ET.fromstring(response.content)
@@ -88,7 +107,7 @@ class OriginalMetadata:
 
     def fetch_metadata(self):
         """Get metadata from ENA API."""
-        response = requests.get(
+        response = self.session.get(
             ENA_SEARCH_API_URL,
             params={
                 "result": "read_run",
