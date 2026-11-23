@@ -188,7 +188,13 @@ class SequenceSearch(object):
             try:
                 metadata = request["included"][0]["attributes"]["sample-metadata"]
                 logger.debug(metadata)
-            except KeyError:
+            except (KeyError, IndexError, TypeError):
+                logger.warning(
+                    "No sample metadata found in the MGnify API response for "
+                    "accession %s. The API response layout may have changed; "
+                    "set MG_TOOLKIT_API_BASE to override the API location.",
+                    accession,
+                )
                 return _meta
         for m in metadata:
             unit = html.unescape(m["unit"]) if m["unit"] else ""

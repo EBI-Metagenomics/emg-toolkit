@@ -109,6 +109,20 @@ How to download specific result file groups (e.g. functional analysis only) for 
 The bulk uploader will store a .tsv file with all the metadata for each downloaded file.
 
 
+MGnify API version
+==================
+
+The MGnify API location is pinned in `mg_toolkit/constants.py` (`DEFAULT_API_BASE`)
+rather than using the versionless `api/latest` alias, which was re-pointed from
+v1 to v2 and broke the response parsing. If you need to point the toolkit at a
+different MGnify deployment, or follow a new API version without upgrading, set
+the `MG_TOOLKIT_API_BASE` environment variable:
+
+    $ MG_TOOLKIT_API_BASE=https://www.ebi.ac.uk/metagenomics/api/v1 mg-toolkit bulk_download -a ERP009703 -p 4.0
+
+Note that the current response parsing expects the v1 layout.
+
+
 Usage as a python package
 =========================
 
