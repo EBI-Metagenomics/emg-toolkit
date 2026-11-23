@@ -216,7 +216,16 @@ class BulkDownloader:
 
         response_data = response.json()
 
-        num_results = response_data["meta"]["pagination"]["count"]
+        num_results = response_data.get("meta", {}).get("pagination", {}).get("count")
+        if num_results is None:
+            raise ValueError(
+                "Unexpected response from the MGnify API at %s. This version of "
+                "mg-toolkit expects the api/v1 response layout (with "
+                "'meta.pagination.count'); the API may have moved on to a newer "
+                "version. Set MG_TOOLKIT_API_BASE to override the API location. "
+                "Top level keys received: %s"
+                % (MG_ANALYSES_BASE_URL, sorted(response_data))
+            )
 
         logging.debug("Total results %s" % num_results)
 
@@ -231,7 +240,7 @@ class BulkDownloader:
                 total_results_processed += num_results_processed
 
                 # navigate to the next link
-                next_url = response_data["links"]["next"]
+                next_url = response_data.get("links", {}).get("next")
 
                 if next_url is not None:
                     logging.debug("Requesting url %s" % next_url)

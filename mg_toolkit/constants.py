@@ -14,9 +14,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+
 MG_SEQ_URL = "https://www.ebi.ac.uk/metagenomics/sequence-search/search/phmmer"
 
-API_BASE = "https://www.ebi.ac.uk/metagenomics/api/latest"
+# Pin the MGnify API version instead of using the versionless "latest" alias.
+# "latest" used to resolve to v1 but was re-pointed to v2, which returns a
+# different response envelope (no "meta", no "links", "count"/"items" instead
+# of "meta.pagination.count"/"data") and does not honour the study_accession
+# and pipeline_version query parameters used by bulk_download.
+DEFAULT_API_BASE = "https://www.ebi.ac.uk/metagenomics/api/v1"
+
+# Allow overriding the API location, e.g. to talk to a different MGnify
+# deployment or to follow a future API version without a new release.
+API_BASE = os.environ.get("MG_TOOLKIT_API_BASE", DEFAULT_API_BASE).rstrip("/")
 
 MG_SAMPLE_URL = API_BASE + "/samples/{accession}"
 
